@@ -225,6 +225,10 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 
 .go{font:inherit;font-weight:700;font-size:17px;color:var(--on-accent);background:var(--accent);border:0;border-radius:var(--r-sm);padding-block:16px;padding-inline:22px;cursor:pointer}
 .go:hover{filter:brightness(1.08)}
+.go.small{font-size:15px;padding-block:9px;padding-inline:16px}
+.shared{display:flex;align-items:center;gap:10px 16px;flex-wrap:wrap;background:var(--accent-soft);color:var(--ink);border-radius:var(--r-sm);padding-block:12px;padding-inline:16px;margin-block-end:18px;font-weight:700}
+.shared span{flex:1 1 220px}
+.xbtn{font:inherit;font-size:20px;line-height:1;background:transparent;border:0;color:var(--muted);cursor:pointer;padding:4px}
 
 /* result card: navy, like the "My lesson" card in the talk */
 .result{position:sticky;top:calc(env(safe-area-inset-top,0px) + 16px);color:var(--card-ink);--pad:28px;display:flex;flex-direction:column;min-width:0}
@@ -352,7 +356,15 @@ a.iconbtn{text-decoration:none}
 button.slink{font:inherit;font-size:14px;font-weight:700;background:transparent;cursor:pointer}
 .storyprev{display:flex;flex-direction:column;gap:10px;align-items:flex-start}
 .storyprev-h{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%}
-.storyimg{width:100%;max-width:240px;height:auto;aspect-ratio:9/16;border-radius:14px;box-shadow:0 6px 24px rgba(0,0,0,.35)}
+.storyimg{width:100%;max-width:150px;height:auto;aspect-ratio:9/16;border-radius:12px;box-shadow:0 6px 24px rgba(0,0,0,.35);flex:none}
+.igrow{display:flex;gap:18px;align-items:flex-start;width:100%}
+.igside{display:flex;flex-direction:column;gap:12px;min-width:0;flex:1}
+.igsteps{margin:0;padding-inline-start:20px;display:flex;flex-direction:column;gap:8px;font-size:14.5px;line-height:1.45}
+.igsteps li::marker{font-weight:800;color:var(--hi)}
+.iglink{display:block;width:100%;margin-top:6px;font-size:12px}
+.igphone{margin:0;font-size:13.5px;opacity:.8}
+button.igopen{font:inherit;font-weight:800;font-size:15px;border:0;cursor:pointer;padding-block:10px;padding-inline:18px}
+@media (max-width:420px){.storyimg{max-width:110px}.igrow{gap:12px}}
 .btn2{font:inherit;font-size:14.5px;font-weight:700;color:var(--card-ink);background:transparent;border:1px solid var(--card-line);border-radius:var(--r-sm);padding-block:8px;padding-inline:14px;cursor:pointer}
 .btn2:hover{border-color:var(--hi)}
 .share input{flex:1 1 160px;min-width:0;font-size:12px;background:var(--card-soft);color:var(--card-ink);border-color:var(--card-line)}
@@ -374,6 +386,9 @@ footer{margin-block-start:22px;color:var(--muted);font-size:14px;display:flex;ga
 
 @media (max-width:540px){
   body{padding-inline:16px}
+  .controls{flex-wrap:nowrap;width:100%;justify-content:space-between}
+  .langpick span{display:none}
+  .langpick select{max-width:52vw}
   .ladder{gap:4px}
   .cell{min-width:38px;height:36px;padding-inline:4px;font-size:14px}
   .grp.sub .cell{min-width:28px}
@@ -403,6 +418,12 @@ footer{margin-block-start:22px;color:var(--muted);font-size:14px;display:flex;ga
       </label>
     </div>
   </header>
+
+  <div class="shared" id="sharedBar" hidden>
+    <span data-t="sharedMsg"></span>
+    <button type="button" class="go small" id="ownBtn" data-t="sharedBtn"></button>
+    <button type="button" class="xbtn" id="sharedClose" aria-label="×">×</button>
+  </div>
 
   <div class="grid">
     <main class="form">
@@ -494,6 +515,8 @@ footer{margin-block-start:22px;color:var(--muted);font-size:14px;display:flex;ga
 /* ===== All interface text lives here. Translations get their own key (es, uk, zh, ko, fa). ===== */
 const STR = {
   en: {
+    sharedMsg: "This plan was shared with you.",
+    sharedBtn: "Calculate my own",
     title: "How Long to English?",
     kicker: "Free calculator · CEFR levels",
     tagline: "See how much time you need to reach your English goal, based on Cambridge English hours.",
@@ -618,10 +641,20 @@ const STR = {
     close: "Close",
     saveImage: "Save image",
     cardDaily: (d) => `${d} a day`,
-    cardGoalPre: "Goal:",
+    cardGoalPre: "My goal:",
+    takeOne: "take one!",
+    linkWord: "LINK",
+    linkHere: "stick your link here",
+    igTitle: "Post it to your Story",
+    igOpen: "Open Instagram",
+    igCopied: "The link is copied.",
+    igCopyFail: "Copy this link:",
+    igStep2: "In the Story, tap the sticker icon ☺ at the top and choose “Link”. Paste the link.",
+    igStep3: "Put the sticker on the LINK spot, so your friends can tap it.",
+    igPhone: "Stories are posted from a phone: save the picture, or open this page on your phone.",
     cardBy: "by",
     cardFooter: " · How long will it take you?",
-    shareText: (d, g, by) => `I'm learning English ${d} a day. Goal: ${g} by ${by}. How long will it take you? Calculate for free:`,
+    shareText: (d, g, by) => `I'm learning English ${d} a day. My goal: ${g} by ${by}. How long will it take you? Calculate for free:`,
     inSkill: "in",
     goalIn: (top, list) => `${top} in ${list}`,
     byPre: "by ", byName: "Iryna Yanishevska", byPost: " © 2026",
@@ -660,6 +693,8 @@ const STR = {
     }
   },
   uk: {
+    sharedMsg: "Цим планом із вами поділилися.",
+    sharedBtn: "Порахувати свій",
     title: "How Long to English?",
     kicker: "Безкоштовний калькулятор · рівні CEFR",
     tagline: "Дізнайтеся, скільки часу потрібно, щоб досягти вашої мети в англійській. Розрахунок на основі годин Cambridge English.",
@@ -776,9 +811,19 @@ const STR = {
     close: "Закрити",
     saveImage: "Зберегти картинку",
     cardDaily: (d) => `${d} на день`,
-    cardGoalPre: "Мета:",
+    cardGoalPre: "Моя мета:",
+    takeOne: "візьми собі!",
+    linkWord: "ПОСИЛАННЯ",
+    linkHere: "приклей сюди посилання",
+    igTitle: "Опублікуйте в Stories",
+    igOpen: "Відкрити Instagram",
+    igCopied: "Посилання скопійовано.",
+    igCopyFail: "Скопіюйте це посилання:",
+    igStep2: "У Stories натисніть значок стікерів ☺ угорі й виберіть «Посилання». Вставте посилання.",
+    igStep3: "Покладіть стікер на місце з написом «ПОСИЛАННЯ», щоб друзі могли на нього натиснути.",
+    igPhone: "Stories публікують з телефона: збережіть картинку або відкрийте цю сторінку на телефоні.",
     cardBy: "до",
-    shareText: (d, g, by) => `Я вчу англійську ${d} на день. Мета: ${g} до ${by}. А скільки часу потрібно вам? Порахуйте безкоштовно:`,
+    shareText: (d, g, by) => `Я вчу англійську ${d} на день. Моя мета: ${g} до ${by}. А скільки часу потрібно вам? Порахуйте безкоштовно:`,
     goalIn: (top, list) => `${top} (${list})`,
     and: "та",
     copied: "Посилання скопійовано",
@@ -786,7 +831,7 @@ const STR = {
     howTitle: "Як ми рахуємо",
     madeBy: "Зроблено ученицею англійської для учнів.",
     privacy: "Без реєстрації. Нічого не зберігається. Без реклами.",
-    byPre: "Авторка: ", byName: "Ірина Яніщевська", byPost: " © 2026",
+    byPre: "Авторка: ", byName: "Ірина Янішевська", byPost: " © 2026",
     how: {
       intro: "Це оцінка, а не обіцянка. Реальний час залежить від віку, досвіду з мовами, інтенсивності навчання і того, скільки англійської у вашому житті поза уроками.",
       formula: "Тижні = 3 × коефіцієнт рідної мови × середній розрив у годинах Cambridge ÷ (години з викладачем + години самостійно)",
@@ -810,6 +855,8 @@ const STR = {
     }
   },
   es: {
+    sharedMsg: "Alguien compartió este plan contigo.",
+    sharedBtn: "Calcular el mío",
     title: "How Long to English?",
     kicker: "Calculadora gratuita · niveles MCER",
     tagline: "Descubre cuánto tiempo necesitas para alcanzar tu meta en inglés, según las horas de Cambridge English.",
@@ -926,9 +973,19 @@ const STR = {
     close: "Cerrar",
     saveImage: "Guardar imagen",
     cardDaily: (d) => `${d} al día`,
-    cardGoalPre: "Meta:",
+    cardGoalPre: "Mi meta:",
+    takeOne: "¡toma uno!",
+    linkWord: "ENLACE",
+    linkHere: "pega aquí tu enlace",
+    igTitle: "Publícalo en tu historia",
+    igOpen: "Abrir Instagram",
+    igCopied: "El enlace está copiado.",
+    igCopyFail: "Copia este enlace:",
+    igStep2: "En la historia, toca el icono de stickers ☺ arriba y elige «Enlace». Pega el enlace.",
+    igStep3: "Pon el sticker sobre el espacio ENLACE, para que tus amigos puedan tocarlo.",
+    igPhone: "Las historias se publican desde el móvil: guarda la imagen o abre esta página en tu móvil.",
     cardBy: "para",
-    shareText: (d, g, by) => `Estudio inglés ${d} al día. Meta: ${g} para ${by}. ¿Cuánto tiempo te llevará a ti? Calcula gratis:`,
+    shareText: (d, g, by) => `Estudio inglés ${d} al día. Mi meta: ${g} para ${by}. ¿Cuánto tiempo te llevará a ti? Calcula gratis:`,
     goalIn: (top, list) => `${top} en ${list}`,
     and: "y",
     copied: "Enlace copiado",
@@ -960,6 +1017,8 @@ const STR = {
     }
   },
   zh: {
+    sharedMsg: "这是别人分享给你的计划。",
+    sharedBtn: "计算我自己的",
     title: "How Long to English?",
     kicker: "免费计算器 · CEFR 等级",
     tagline: "根据剑桥英语的学习时长，算一算你需要多长时间才能达到英语目标。",
@@ -1076,9 +1135,19 @@ const STR = {
     close: "关闭",
     saveImage: "保存图片",
     cardDaily: (d) => `每天 ${d}`,
-    cardGoalPre: "目标：",
+    cardGoalPre: "我的目标：",
+    takeOne: "撕一张吧！",
+    linkWord: "链接",
+    linkHere: "把链接贴在这里",
+    igTitle: "发布到你的快拍",
+    igOpen: "打开 Instagram",
+    igCopied: "链接已复制。",
+    igCopyFail: "复制这个链接：",
+    igStep2: "在快拍里点顶部的贴纸图标 ☺，选择“链接”，然后粘贴。",
+    igStep3: "把贴纸放在“链接”的位置，朋友们就能点开。",
+    igPhone: "快拍只能用手机发布：保存图片，或在手机上打开这个页面。",
     cardBy: "完成于",
-    shareText: (d, g, by) => `我每天学英语 ${d}。目标：${by}前达到 ${g}。你需要多长时间？免费计算：`,
+    shareText: (d, g, by) => `我每天学英语 ${d}。我的目标：${by}前达到 ${g}。你需要多长时间？免费计算：`,
     goalIn: (top, list) => `${list} ${top}`,
     and: "和",
     copied: "链接已复制",
@@ -1110,6 +1179,8 @@ const STR = {
     }
   },
   ko: {
+    sharedMsg: "다른 사람이 공유한 계획입니다.",
+    sharedBtn: "내 계획 계산하기",
     title: "How Long to English?",
     kicker: "무료 계산기 · CEFR 레벨",
     tagline: "케임브리지 영어 학습 시간을 바탕으로, 영어 목표에 도달하는 데 얼마나 걸리는지 알아보세요.",
@@ -1226,9 +1297,19 @@ const STR = {
     close: "닫기",
     saveImage: "이미지 저장",
     cardDaily: (d) => `매일 ${d}`,
-    cardGoalPre: "목표:",
+    cardGoalPre: "나의 목표:",
+    takeOne: "하나 가져가세요!",
+    linkWord: "링크",
+    linkHere: "여기에 링크를 붙이세요",
+    igTitle: "스토리에 올리기",
+    igOpen: "Instagram 열기",
+    igCopied: "링크가 복사되었어요.",
+    igCopyFail: "이 링크를 복사하세요:",
+    igStep2: "스토리에서 위쪽의 스티커 아이콘 ☺을 누르고 ‘링크’를 선택해 붙여 넣으세요.",
+    igStep3: "스티커를 ‘링크’ 자리에 놓으면 친구들이 누를 수 있어요.",
+    igPhone: "스토리는 휴대폰에서 올려요. 이미지를 저장하거나 휴대폰에서 이 페이지를 여세요.",
     cardBy: "까지",
-    shareText: (d, g, by) => `저는 매일 ${d} 영어를 공부해요. 목표: ${by}까지 ${g}. 당신은 얼마나 걸릴까요? 무료로 계산해 보세요:`,
+    shareText: (d, g, by) => `저는 매일 ${d} 영어를 공부해요. 나의 목표: ${by}까지 ${g}. 당신은 얼마나 걸릴까요? 무료로 계산해 보세요:`,
     goalIn: (top, list) => `${list} ${top}`,
     and: "·",
     copied: "링크 복사됨",
@@ -1260,6 +1341,8 @@ const STR = {
     }
   },
   fa: {
+    sharedMsg: "این برنامه با شما به اشتراک گذاشته شده است.",
+    sharedBtn: "برنامهٔ خودم را حساب کن",
     title: "How Long to English?",
     kicker: "ماشین‌حساب رایگان · سطح‌های CEFR",
     tagline: "ببینید رسیدن به هدف انگلیسی‌تان چقدر زمان می‌برد، بر اساس ساعت‌های آموزشی کمبریج.",
@@ -1376,9 +1459,19 @@ const STR = {
     close: "بستن",
     saveImage: "ذخیرهٔ تصویر",
     cardDaily: (d) => `${d} در روز`,
-    cardGoalPre: "هدف:",
+    cardGoalPre: "هدف من:",
+    takeOne: "یکی بردار!",
+    linkWord: "لینک",
+    linkHere: "لینک را اینجا بچسبان",
+    igTitle: "در استوری منتشر کنید",
+    igOpen: "باز کردن اینستاگرام",
+    igCopied: "لینک کپی شد.",
+    igCopyFail: "این لینک را کپی کنید:",
+    igStep2: "در استوری، روی آیکون استیکر ☺ در بالا بزنید و «لینک» را انتخاب کنید. لینک را بچسبانید.",
+    igStep3: "استیکر را روی جای «لینک» بگذارید تا دوستانتان بتوانند رویش بزنند.",
+    igPhone: "استوری را با گوشی منتشر می‌کنند: تصویر را ذخیره کنید یا این صفحه را در گوشی باز کنید.",
     cardBy: "تا",
-    shareText: (d, g, by) => `من هر روز ${d} انگلیسی می‌خوانم. هدف: ${g} تا ${by}. برای شما چقدر طول می‌کشد؟ رایگان حساب کنید:`,
+    shareText: (d, g, by) => `من هر روز ${d} انگلیسی می‌خوانم. هدف من: ${g} تا ${by}. برای شما چقدر طول می‌کشد؟ رایگان حساب کنید:`,
     goalIn: (top, list) => `${top} در ${list}`,
     and: "و",
     copied: "پیوند کپی شد",
@@ -2029,11 +2122,24 @@ function weekBlock(){
   return wk;
 }
 
+function siteUrl(){
+  let inFrame = false; try { inFrame = window.top !== window.self; } catch (e) { inFrame = true; }
+  return inFrame ? "https://" + SITE_DOMAIN + "/" : location.href.split("#")[0];   // inside Claude: the live site
+}
 function planUrl(){
   // Inside Claude the page runs in a frame with its own temporary address, so link to the artifact itself.
   let inFrame = false; try { inFrame = window.top !== window.self; } catch (e) { inFrame = true; }
-  return (inFrame ? ARTIFACT_URL : location.href.split("#")[0]) + "#" + encodeState();
+  return (inFrame ? "https://" + SITE_DOMAIN + "/" : location.href.split("#")[0]) + "#" + encodeState();
 }
+/* "January 2028"; Ukrainian needs the month in the genitive ("до січня 2028 р."). */
+function monthYear(d){
+  if (state.lang === "uk"){
+    const m = new Intl.DateTimeFormat("uk", { day: "numeric", month: "long" }).format(d).replace(/[\d\s.]/g, "");
+    return m + " " + d.getFullYear() + " р.";
+  }
+  return new Intl.DateTimeFormat(state.lang, { month: "long", year: "numeric" }).format(d);
+}
+const byDate = (by) => state.lang === "ko" ? by + T().cardBy : T().cardBy + " " + by;
 /* What the card says about the goal: "B2", or "B2 in speaking and writing" when not every skill is raised. */
 function goalPhrase(c){
   const t = T();
@@ -2047,48 +2153,117 @@ function goalPhrase(c){
 /* Instagram Story image, 1080 × 1920, drawn in the page. On the live site the phone's share menu gets this picture
    (that is the only way into Instagram from a website); where sharing files is not possible, the page shows the picture instead. */
 async function drawStory(st){
+  /* An Instagram Story (1080 × 1920): a cream "notice" taped onto a warm rust wall, with tear-off tabs at the bottom,
+     one already taken — the same "tear it off, take it with you" idea as on the page. Content stays inside the safe zone
+     (Instagram covers roughly the top 220 px and the bottom 250 px). */
   const t = T();
-  try { await Promise.all(["700 150px Domine", "700 56px 'Nunito Sans'", "400 44px 'Nunito Sans'"].map(f => document.fonts.load(f))); } catch (e) {}
-  const W = 1080, H = 1920, P = 96;
+  try { await Promise.all(["700 150px Domine", "800 56px 'Nunito Sans'", "700 56px 'Nunito Sans'", "600 60px Caveat"].map(f => document.fonts.load(f))); } catch (e) {}
+  const W = 1080, H = 1920;
   const cv = document.createElement("canvas"); cv.width = W; cv.height = H;
   const x = cv.getContext("2d");
-  const NAVY = "#1F2A44", CREAM = "#FAF6EE", ORANGE = "#F2A65A", RUST = "#A8471A", MUTED = "#C4C0B6";
-  const disp = "Domine, Georgia, serif", body = "'Nunito Sans', Arial, sans-serif";
-  x.fillStyle = NAVY; x.fillRect(0, 0, W, H);
-  const rr = (X, Y, w, h, r, fill) => { x.beginPath(); x.roundRect ? x.roundRect(X, Y, w, h, r) : x.rect(X, Y, w, h); x.fillStyle = fill; x.fill(); };
-  const wrapText = (str, font, maxW) => {
-    x.font = font; const words = str.split(" "); const lines = []; let line = "";
-    words.forEach(wd => { const test = line ? line + " " + wd : wd; if (x.measureText(test).width > maxW && line){ lines.push(line); line = wd; } else line = test; });
-    if (line) lines.push(line); return lines;
-  };
-  x.textBaseline = "alphabetic"; x.textAlign = "left";
-  // 1. name
-  let y = 300;
-  wrapText(t.title, `700 72px ${disp}`, W - 2 * P).forEach(l => { x.fillStyle = ORANGE; x.font = `700 72px ${disp}`; x.fillText(l, P, y); y += 84; });
-  // 2. time a day
-  x.fillStyle = CREAM; x.font = `700 200px ${disp}`; x.fillText(st.daily, P, 640);
-  x.fillStyle = CREAM; x.font = `700 76px ${body}`; x.fillText(t.storyADay, P, 750);
-  // a week of rust boxes, like the talk's cover
-  const gap = 18, dw = (W - 2 * P - 6 * gap) / 7, dy = 810;
-  t.days.forEach((d, i) => {
-    const dx = P + i * (dw + gap);
-    rr(dx, dy, dw, 110, 22, "#A8471A");
-    x.fillStyle = CREAM; x.font = `700 44px ${body}`; x.textAlign = "center"; x.fillText(d, dx + dw / 2, dy + 70);
+  const NAVY = "#1F2A44", CREAM = "#FAF6EE", ORANGE = "#F2A65A", RUST = "#A8471A", INK2 = "#414B5E", MUTED = "#6A6F7A";
+  const disp = "Domine, Georgia, serif", body = "'Nunito Sans', Arial, sans-serif", hand = "Caveat, 'Segoe Print', cursive";
+  const rr = (X, Y, w, h, r) => { x.beginPath(); x.roundRect ? x.roundRect(X, Y, w, h, r) : x.rect(X, Y, w, h); };
+  const fit = (str, weight, size, family, maxW, min = 40) => { let f = size; x.font = `${weight} ${f}px ${family}`; while (x.measureText(str).width > maxW && f > min){ f -= 2; x.font = `${weight} ${f}px ${family}`; } return f; };
+  const wrap = (str, font, maxW) => { x.font = font; const out = []; let line = "";
+    str.split(" ").forEach(w => { const tst = line ? line + " " + w : w; if (x.measureText(tst).width > maxW && line){ out.push(line); line = w; } else line = tst; });
+    if (line) out.push(line); return out; };
+  const spaced = (str, px) => { try { x.letterSpacing = px + "px"; } catch (e) {} };
+
+  // wall: warm rust gradient with two soft orange glows
+  const g = x.createLinearGradient(0, 0, 0, H); g.addColorStop(0, "#C25A27"); g.addColorStop(1, "#7A3112");
+  x.fillStyle = g; x.fillRect(0, 0, W, H);
+  [[930, 260, 380, .22], [120, 1720, 420, .18]].forEach(([cx, cy, r, a]) => {
+    const rg = x.createRadialGradient(cx, cy, 0, cx, cy, r); rg.addColorStop(0, `rgba(242,166,90,${a})`); rg.addColorStop(1, "rgba(242,166,90,0)");
+    x.fillStyle = rg; x.fillRect(0, 0, W, H);
   });
-  x.textAlign = "left";
-  // 3. goal
-  x.fillStyle = MUTED; x.font = `700 52px ${body}`; x.fillText(t.cardGoalPre, P, 1030);
-  y = 1130;
-  wrapText(st.goal, `700 88px ${disp}`, W - 2 * P).forEach(l => { x.fillStyle = CREAM; x.font = `700 88px ${disp}`; x.fillText(l, P, y); y += 104; });
-  x.fillStyle = ORANGE; x.font = `700 88px ${disp}`; x.fillText(`${t.cardBy} ${st.by}`, P, y);
-  // 4. question + button
-  x.fillStyle = "#33405F"; x.fillRect(P, 1530, W - 2 * P, 3);
-  x.fillStyle = CREAM; x.font = `700 62px ${body}`; x.fillText(t.storyAsk, P, 1640);
-  x.font = `800 54px ${body}`;
-  const bw = x.measureText(t.cta).width + 96;
-  rr(P, 1700, bw, 120, 60, ORANGE);
-  x.fillStyle = NAVY; x.fillText(t.cta, P + 48, 1779);
-  x.fillStyle = MUTED; x.font = `400 40px ${body}`; x.fillText(SITE_DOMAIN, P, 1880);
+
+  // header above the notice
+  x.textAlign = "center"; x.textBaseline = "alphabetic";
+  x.fillStyle = CREAM; x.font = `800 ${fit(t.storyAsk, 800, 58, body, 920)}px ${body}`; x.fillText(t.storyAsk, W / 2, 238);
+  x.globalAlpha = .8; x.font = `700 32px ${body}`; x.fillText(SITE_DOMAIN, W / 2, 292); x.globalAlpha = 1;
+
+  // the notice, slightly turned
+  const PX = 100, PY = 340, PW = 880, MAIN = 1040, TABS = 270, PH = MAIN + TABS;
+  x.save();
+  x.translate(W / 2, PY + PH / 2); x.rotate(-2.4 * Math.PI / 180); x.translate(-W / 2, -(PY + PH / 2));
+  const tabs = 7, tw = PW / tabs, kept = 3;               // the last four tabs are gone: that is where the Link sticker goes
+  // paper with its shadow: main sheet + the tabs that are still there
+  x.save();
+  x.shadowColor = "rgba(40,14,4,.45)"; x.shadowBlur = 50; x.shadowOffsetY = 24;
+  x.fillStyle = CREAM;
+  rr(PX, PY, PW, MAIN + 2, 18); x.fill();
+  for (let i = 0; i < kept; i++){ x.fillRect(PX + i * tw + 3, PY + MAIN, tw - 6, TABS - (i % 2 ? 0 : 10)); }
+  x.restore();
+  // tape on top
+  x.save(); x.translate(W / 2, PY + 6); x.rotate(4 * Math.PI / 180);
+  x.fillStyle = "rgba(242,166,90,.82)"; x.fillRect(-120, -34, 240, 68); x.restore();
+
+  const L = PX + 70, CW = PW - 140;
+  const rtl = state.lang === "fa", AX = rtl ? L + CW : L, ALIGN = rtl ? "right" : "left";   // Persian reads from the right
+  x.direction = rtl ? "rtl" : "ltr"; x.textAlign = ALIGN;
+  // kicker
+  x.fillStyle = RUST; x.font = `800 34px ${body}`; spaced(x, 7); x.fillText(t.cardKicker.toUpperCase(), AX, PY + 110); spaced(x, 0);
+  // time a day: the hero
+  x.fillStyle = NAVY; x.font = `700 ${fit(st.daily, 700, 190, disp, CW)}px ${disp}`; x.fillText(st.daily, AX, PY + 298);
+  x.fillStyle = INK2; x.font = `700 54px ${body}`; x.fillText(t.perDay("").replace(/^\s+/, "").trim() || t.storyADay, AX, PY + 370);
+  // a week of rust boxes
+  const gap = 14, bw = (CW - 6 * gap) / 7;
+  t.days.forEach((d, i) => {
+    const bx = L + (rtl ? 6 - i : i) * (bw + gap);
+    rr(bx, PY + 410, bw, 92, 18); x.fillStyle = RUST; x.fill();
+    x.fillStyle = CREAM; x.font = `800 ${d.length > 1 ? 34 : 40}px ${body}`; x.textAlign = "center"; x.fillText(d, bx + bw / 2, PY + 470);
+  });
+  x.textAlign = ALIGN;
+  // dashed rule
+  x.strokeStyle = "#D9CCB2"; x.lineWidth = 3; x.setLineDash([14, 12]);
+  x.beginPath(); x.moveTo(L, PY + 562); x.lineTo(L + CW, PY + 562); x.stroke(); x.setLineDash([]);
+  // my goal
+  x.fillStyle = MUTED; x.font = `800 40px ${body}`; spaced(x, 4);
+  x.fillText(t.cardGoalPre.replace(/[:：]\s*$/, "").toUpperCase(), AX, PY + 632); spaced(x, 0);
+  let gs = 84, lines = wrap(st.goal, `700 ${gs}px ${disp}`, CW);
+  if (lines.length > 2){ gs = 62; lines = wrap(st.goal, `700 ${gs}px ${disp}`, CW); }
+  let y = PY + 632 + gs + 12;
+  lines.forEach(l => { x.fillStyle = NAVY; x.font = `700 ${gs}px ${disp}`; x.fillText(l, AX, y); y += gs * 1.12; });
+  x.fillStyle = RUST; x.font = `700 ${Math.round(gs * .78)}px ${disp}`; x.fillText(byDate(st.by), AX, y + 4);
+  // perforation above the tabs
+  x.strokeStyle = "#C9BBA0"; x.lineWidth = 3; x.setLineDash([6, 10]);
+  x.beginPath(); x.moveTo(PX + 12, PY + MAIN); x.lineTo(PX + PW - 12, PY + MAIN); x.stroke(); x.setLineDash([]);
+  // hand-written invitation, pointing down to the tabs
+  x.fillStyle = RUST; x.font = `600 ${fit(t.takeOne, 600, 64, hand, CW - 260, 44)}px ${hand}`; x.textAlign = "right";
+  x.save(); x.translate(PX + PW - 118, PY + MAIN - 34); x.rotate(-4 * Math.PI / 180); x.fillText(t.takeOne, 0, 0); x.restore();
+  x.strokeStyle = RUST; x.lineWidth = 4; x.lineCap = "round"; x.lineJoin = "round";
+  const ax = PX + PW - 64, ay = PY + MAIN + 40;
+  x.beginPath(); x.moveTo(PX + PW - 100, PY + MAIN - 74); x.quadraticCurveTo(ax + 40, PY + MAIN - 70, ax, ay); x.stroke();
+  x.beginPath(); x.moveTo(ax - 18, ay - 20); x.lineTo(ax, ay); x.lineTo(ax + 16, ay - 22); x.stroke();
+  // the spot for the Link sticker, where the torn-off tabs were
+  const sx = PX + kept * tw + 14, sy = PY + MAIN + 22, sw = PW - kept * tw - 28, sh = TABS - 34;
+  x.save();
+  rr(sx, sy, sw, sh, 26); x.fillStyle = "rgba(250,246,238,.13)"; x.fill();
+  x.strokeStyle = CREAM; x.lineWidth = 5; x.setLineDash([20, 13]); x.stroke(); x.setLineDash([]);
+  // chain icon + the word
+  const word = t.linkWord, wf = fit(word, 900, 84, body, sw - 170, 40);
+  x.font = `900 ${wf}px ${body}`;
+  const ww = x.measureText(word).width, iw = 78, gx = sx + (sw - (iw + 22 + ww)) / 2, cy = sy + sh / 2 - 22;
+  x.save(); x.translate(gx + iw / 2, cy); x.rotate(-Math.PI / 4);
+  x.strokeStyle = CREAM; x.lineWidth = 10; x.lineCap = "round";
+  rr(-50, -17, 58, 34, 17); x.stroke(); rr(-8, -17, 58, 34, 17); x.stroke();
+  x.restore();
+  x.fillStyle = CREAM; x.textAlign = "left"; x.direction = "ltr"; x.textBaseline = "middle";
+  x.fillText(word, gx + iw + 22, cy + 4);
+  x.fillStyle = ORANGE; x.font = `600 ${fit(t.linkHere, 600, 48, hand, sw - 50, 30)}px ${hand}`; x.textAlign = "center";
+  x.direction = rtl ? "rtl" : "ltr"; x.fillText(t.linkHere, sx + sw / 2, cy + 82);
+  x.textBaseline = "alphabetic";
+  x.restore();
+  // tabs: the name and "Calculate for free", written sideways like phone numbers on a notice
+  for (let i = 0; i < kept; i++){
+    x.save(); x.translate(PX + i * tw + tw / 2 + 4, PY + MAIN + 26); x.rotate(Math.PI / 2);
+    x.textAlign = "left"; x.direction = "ltr";
+    x.fillStyle = NAVY; x.font = `800 ${fit(t.title, 800, 32, body, TABS - 56, 16)}px ${body}`; x.fillText(t.title, 0, 6);
+    x.fillStyle = RUST; x.font = `700 ${fit(t.cta, 700, 26, body, TABS - 56, 16)}px ${body}`; x.fillText(t.cta, 0, 40);
+    x.restore();
+  }
+  x.restore();
   return cv;
 }
 /* The picture is drawn ahead of time (a moment after the result settles), because phones only open the share menu
@@ -2105,37 +2280,61 @@ function prepareStory(st){
       storyReady.file = new File([b], "my-english-plan.png", { type: "image/png" }); }, "image/png");
   }, 350);
 }
-function shareStory(st, text, prev){
-  const f = storyReady.file;
-  let canFiles = false;
-  try { canFiles = !!(f && navigator.canShare && navigator.canShare({ files: [f] })); } catch (e) {}
-  if (canFiles){
-    // called straight from the tap, nothing awaited before it
-    navigator.share({ files: [f] }).catch(err => { if (err && err.name !== "AbortError") showStory(st, text, prev); });
-    return;
-  }
-  showStory(st, text, prev);
+/* Instagram: a tap copies the link to the site and opens a small panel with the picture and what to do in Instagram.
+   A website cannot put a clickable link into a Story; only the person can, with Instagram's "Link" sticker,
+   so the picture has a marked spot for it. "Open Instagram" is a second tap, so the phone's share menu is allowed to open. */
+function canPostStory(){
+  try {
+    const probe = new File([new Blob(["x"])], "a.png", { type: "image/png" });
+    return matchMedia("(pointer: coarse)").matches && !!navigator.canShare && navigator.canShare({ files: [probe] });
+  } catch (e) { return false; }
 }
-async function showStory(st, text, prev){
-  const t = T();
+function copyText(u){
+  return new Promise((ok, no) => { try { navigator.clipboard.writeText(u).then(ok, no); } catch (e) { no(e); } });
+}
+async function shareStory(st, text, prev){
+  const t = T(), url = siteUrl();
+  const copied = copyText(url);            // started right inside the tap
   const cv = storyReady.canvas || await drawStory(st);
   prev.innerHTML = "";
   const head = document.createElement("div"); head.className = "storyprev-h";
-  const ttl = document.createElement("b"); ttl.textContent = t.storyPreview;
+  const ttl = document.createElement("b"); ttl.textContent = t.igTitle;
+  const cl = document.createElement("button"); cl.type = "button"; cl.className = "iconbtn"; cl.textContent = t.close;
+  cl.addEventListener("click", () => { prev.hidden = true; });
+  head.append(ttl, cl);
+  const row = document.createElement("div"); row.className = "igrow";
+  const img = document.createElement("img"); img.className = "storyimg"; img.alt = text; img.src = cv.toDataURL("image/png");
+  const side = document.createElement("div"); side.className = "igside";
+  const ol = document.createElement("ol"); ol.className = "igsteps";
+  const s1 = document.createElement("li"); s1.textContent = t.igCopied;
+  copied.catch(() => {
+    s1.textContent = t.igCopyFail + " ";
+    const i = document.createElement("input"); i.type = "text"; i.readOnly = true; i.value = url; i.className = "iglink";
+    s1.appendChild(i); i.addEventListener("focus", () => i.select());
+  });
+  const s2 = document.createElement("li"); s2.textContent = t.igStep2;
+  const s3 = document.createElement("li"); s3.textContent = t.igStep3;
+  ol.append(s1, s2, s3);
   const btns = document.createElement("div"); btns.className = "wk-btns";
-  // outside Claude the picture can be saved and posted from the phone's gallery
+  const f = storyReady.file;
+  let canFiles = false;
+  try { canFiles = !!(f && navigator.canShare && navigator.canShare({ files: [f] })); } catch (e) {}
   let inFrame = false; try { inFrame = window.top !== window.self; } catch (e) { inFrame = true; }
+  if (canFiles){
+    const op = document.createElement("button"); op.type = "button"; op.className = "scard-cta igopen"; op.textContent = t.igOpen;
+    op.addEventListener("click", () => { navigator.share({ files: [storyReady.file || f] }).catch(() => {}); });
+    btns.appendChild(op);
+  }
   if (!inFrame){
     const sv = document.createElement("a"); sv.className = "iconbtn"; sv.textContent = t.saveImage; sv.download = "my-english-plan.png";
     sv.href = cv.toDataURL("image/png");
     btns.appendChild(sv);
   }
-  const cl = document.createElement("button"); cl.type = "button"; cl.className = "iconbtn"; cl.textContent = t.close;
-  cl.addEventListener("click", () => { prev.hidden = true; });
-  btns.appendChild(cl);
-  head.append(ttl, btns);
-  const img = document.createElement("img"); img.className = "storyimg"; img.alt = text; img.src = cv.toDataURL("image/png");
-  prev.append(head, img);
+  side.append(ol);
+  if (!canFiles){ const ph = document.createElement("p"); ph.className = "igphone"; ph.textContent = t.igPhone; side.appendChild(ph); }
+  if (btns.children.length) side.appendChild(btns);
+  row.append(img, side);
+  prev.append(head, row);
   prev.hidden = false;
 }
 function shareBlock(c){
@@ -2144,12 +2343,12 @@ function shareBlock(c){
   wrap.className = "tear " + (state.torn ? "torn" : "tearing") + " navy";
   if (!state.torn) setTimeout(() => { state.torn = true; }, 2700);
   const h = document.createElement("h3"); h.textContent = t.shareTitle; wrap.appendChild(h);
-  const url = planUrl();
+  const url = siteUrl();   // social posts invite friends to calculate their own; "Copy link to this plan" keeps the plan
   let text = "";
   if (c && c.status === "ok"){
     const daily = fmtDur((state.t + state.s) / 7);
     const goal = goalPhrase(c);
-    const by = new Intl.DateTimeFormat(state.lang, { month: "long", year: "numeric" }).format(addWeeks(c.weeksHi));
+    const by = monthYear(addWeeks(c.weeksHi));
     text = t.shareText(daily, goal, by);
     // the card: name · time a day · goal · question and button (same order as the Instagram picture)
     const card = document.createElement("div"); card.className = "scard";
@@ -2157,8 +2356,8 @@ function shareBlock(c){
     const big = document.createElement("div"); big.className = "scard-big"; big.textContent = t.cardDaily(daily);
     const goalEl = document.createElement("div"); goalEl.className = "scard-goal";
     goalEl.append(t.cardGoalPre + " ");
-    const gb = document.createElement("b"); gb.textContent = goal; goalEl.append(gb, " " + t.cardBy + " ");
-    const db = document.createElement("b"); db.textContent = by; goalEl.append(db);
+    const gb = document.createElement("b"); gb.textContent = goal; const db = document.createElement("b"); db.textContent = by;
+    if (state.lang === "ko") goalEl.append(gb, " ", db, t.cardBy); else goalEl.append(gb, " " + t.cardBy + " ", db);
     const ft = document.createElement("div"); ft.className = "scard-ft";
     const q = document.createElement("span"); q.textContent = t.storyAsk;
     const cta = document.createElement("span"); cta.className = "scard-cta"; cta.textContent = t.cta;
@@ -2171,11 +2370,13 @@ function shareBlock(c){
     const links = document.createElement("div"); links.className = "slinks";
     const e = encodeURIComponent;
     const story = { daily, goal, by };
-    const ig = document.createElement("button"); ig.type = "button"; ig.className = "slink"; ig.textContent = "Instagram";
     const prev = document.createElement("div"); prev.className = "storyprev"; prev.hidden = true;
-    ig.addEventListener("click", () => shareStory(story, text, prev));
-    prepareStory(story);
-    links.appendChild(ig);
+    if (canPostStory()){                     // only phones can post a Story, so the button shows only there
+      const ig = document.createElement("button"); ig.type = "button"; ig.className = "slink"; ig.textContent = "Instagram";
+      ig.addEventListener("click", () => shareStory(story, text, prev));
+      prepareStory(story);
+      links.appendChild(ig);
+    }
     [
       ["Facebook", `https://www.facebook.com/sharer/sharer.php?u=${e(url)}`],
       ["WhatsApp", `https://wa.me/?text=${e(text + " " + url)}`],
@@ -2336,7 +2537,18 @@ document.querySelectorAll("#themeSeg button").forEach(b => b.addEventListener("c
 let savedTheme = "light";
 try { if (localStorage.getItem("hlte-theme") === "dark") savedTheme = "dark"; } catch (e) {}
 
-if (decodeState(location.hash)) state.shown = true;
+const DEFAULTS = JSON.stringify({ ...state, purposes: [...state.purposes] });
+function startOwn(){
+  const d = JSON.parse(DEFAULTS);
+  Object.assign(state, d, { purposes: new Set(d.purposes), lang: state.lang, shown: false, torn: false, week: null, fromLink: false });
+  try { history.replaceState(null, "", location.pathname); } catch (e) {}
+  $("sharedBar").hidden = true;
+  update();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+$("ownBtn").addEventListener("click", startOwn);
+$("sharedClose").addEventListener("click", () => { $("sharedBar").hidden = true; });
+if (decodeState(location.hash)){ state.shown = true; state.fromLink = true; $("sharedBar").hidden = false; }
 renderStatic();
 setTheme(savedTheme, false);
 update();
