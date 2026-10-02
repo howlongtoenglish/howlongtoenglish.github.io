@@ -1,0 +1,1473 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Free calculator: how long will it take you to reach your English goal? Based on Cambridge English hours. No sign-up.">
+<meta property="og:title" content="How Long to English?">
+<meta property="og:description" content="How long will it take you to reach your English goal? Calculate for free.">
+<meta property="og:type" content="website">
+<style>
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0}
+  :root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+  img{max-width:100%}
+  [hidden]{display:none!important}
+</style>
+<title>How Long to English?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Domine:wght@400..700&family=Nunito+Sans:wght@400;600;700&display=swap">
+<style>
+/* Layout: the look of the "English as a Project" talk — cream page, sand step cards, navy for the result and for chosen options, rust as the one accent.
+   Two columns on wide screens (form + sticky navy result card), one column on phones. */
+:root{
+  --bg:#FAF6EE; --panel:#F1E9DA; --field:#FAF6EE; --ink:#1F2A44; --body:#414B5E; --muted:#6A6F7A;
+  --line:#E4D7BF; --dash:#B8A585; --track:#EDE3D0;
+  --accent:#A8471A; --accent-soft:#F0D9CB; --on-accent:#FAF6EE;
+  --sel:#1F2A44; --on-sel:#FAF6EE;
+  /* result card: navy island in both themes */
+  --card:#1F2A44; --card-ink:#FAF6EE; --card-muted:#C4C0B6; --card-line:#33405F; --card-track:#33405F; --hi:#F2A65A; --card-soft:#2A3756;
+  --display:"Domine", Georgia, "Times New Roman", serif;
+  --font:"Nunito Sans", "Segoe UI", Arial, "Noto Sans", sans-serif;
+  --r:20px; --r-sm:12px;
+  color-scheme:light;
+}
+/* Light is the default for everyone; dark only when the visitor picks it with the page's own switch. */
+:root.dark{
+  --bg:#141A2B; --panel:#1C2438; --field:#141A2B; --ink:#F3EDE1; --body:#D3CDBF; --muted:#A3A6B0;
+  --line:#2E3850; --dash:#5B6683; --track:#2A3349;
+  --accent:#F2A65A; --accent-soft:#3A2C22; --on-accent:#1F2A44;
+  --sel:#F2A65A; --on-sel:#1F2A44;
+  --card:#26314D; --card-line:#3A4766; --card-track:#3A4766; --card-soft:#303C5C;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--body);font-family:var(--font);font-size:16px;line-height:1.5;padding-inline:24px;padding-block:24px 56px}
+.wrap{max-width:1160px;margin-inline:auto}
+a{color:var(--accent);text-underline-offset:2px}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+h1,h2,h3{color:var(--ink)}
+
+/* header */
+.top{display:flex;align-items:flex-end;justify-content:space-between;gap:16px 24px;flex-wrap:wrap;padding-block:4px 28px}
+.brand{display:flex;flex-direction:column;gap:8px}
+.kicker{font-size:13px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--accent)}
+.brand h1{margin:0;font-family:var(--display);font-size:clamp(34px,4.4vw,52px);font-weight:700;line-height:1.05;letter-spacing:-.01em;text-wrap:balance}
+.brand p{margin:0;color:var(--body);font-size:18px;max-width:52ch}
+.controls{display:flex;align-items:center;gap:12px 16px;flex-wrap:wrap}
+.langpick{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:14px}
+select,input[type=text]{font:inherit;font-size:15px;color:var(--ink);background:var(--field);border:1px solid var(--line);border-radius:var(--r-sm);padding-block:8px;padding-inline:12px}
+
+/* grid */
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,420px);gap:28px;align-items:start}
+@media (max-width:920px){.grid{grid-template-columns:minmax(0,1fr)}}
+
+/* steps */
+.form{display:flex;flex-direction:column;gap:16px;min-width:0}
+.step{background:var(--panel);border-radius:var(--r);padding-block:22px;padding-inline:24px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.step-h{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.step-n{font-family:var(--display);font-size:20px;font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums}
+.step-h h2{margin:0;font-family:var(--display);font-size:21px;font-weight:700;line-height:1.25}
+.step-h .aside{margin-inline-start:auto;font-size:14px;color:var(--muted)}
+
+/* chips */
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font:inherit;font-size:15px;font-weight:600;color:var(--ink);background:var(--field);border:1px solid var(--line);border-radius:var(--r-sm);padding-block:7px;padding-inline:14px;cursor:pointer;line-height:1.3;transition:background .15s,border-color .15s,color .15s}
+.chip:hover:not(:disabled){border-color:var(--ink)}
+.chip[aria-pressed="true"]{background:var(--sel);border-color:var(--sel);color:var(--on-sel)}
+.chip:disabled{opacity:.35;cursor:not-allowed;background:transparent;border-style:dashed;border-color:var(--dash)}
+.chip.lvl{min-width:50px;font-variant-numeric:tabular-nums;text-align:center}
+
+/* purpose cards */
+.purposes{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+.pcard{font:inherit;text-align:start;color:var(--ink);background:var(--field);border:1px solid var(--line);border-radius:var(--r-sm);padding-block:12px;padding-inline:14px;cursor:pointer;display:flex;flex-direction:column;gap:3px;transition:border-color .15s,background .15s}
+.pcard:hover{border-color:var(--ink)}
+.pcard b{font-family:var(--display);font-weight:700;font-size:16px}
+.pcard span{font-size:13.5px;color:var(--muted);line-height:1.4}
+.pcard[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft);box-shadow:inset 0 0 0 1px var(--accent)}
+
+/* segmented */
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:var(--r-sm);overflow:hidden;background:var(--field)}
+.seg button{font:inherit;font-size:14px;font-weight:600;background:transparent;color:var(--muted);border:0;padding-block:6px;padding-inline:14px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--sel);color:var(--on-sel)}
+
+/* level ladder: whole levels are single buttons; with steps, a level's steps sit together under one label */
+.ladder{display:flex;flex-wrap:wrap;gap:6px;align-items:flex-end}
+.grp{display:flex;flex-direction:column;gap:3px}
+.glabel{font-size:11.5px;font-weight:700;letter-spacing:.06em;text-align:center;color:var(--muted);border-bottom:2px solid var(--line);padding-block-end:1px}
+.grp.on .glabel{color:var(--accent);border-color:var(--accent)}
+.gcells{display:flex}
+.cell{font:inherit;font-size:14.5px;font-weight:700;color:var(--ink);background:var(--field);border:1px solid var(--line);border-radius:var(--r-sm);min-width:44px;height:38px;padding-inline:8px;cursor:pointer;font-variant-numeric:tabular-nums;transition:background .15s,border-color .15s,color .15s}
+.grp.sub .cell{min-width:30px;padding-inline:4px;border-radius:0}
+.grp.sub .cell:first-child{border-start-start-radius:var(--r-sm);border-end-start-radius:var(--r-sm)}
+.grp.sub .cell:last-child{border-start-end-radius:var(--r-sm);border-end-end-radius:var(--r-sm)}
+.grp.sub .cell + .cell{border-inline-start-width:0}
+.cell:hover:not(:disabled){background:var(--accent-soft)}
+.cell[aria-pressed="true"]{background:var(--sel);border-color:var(--sel);color:var(--on-sel)}
+.cell:disabled{opacity:.35;cursor:not-allowed;background:transparent;border-style:dashed;border-color:var(--dash)}
+
+/* skill rows */
+.rows{display:flex;flex-direction:column;gap:10px}
+.srow{display:grid;grid-template-columns:92px minmax(0,1fr);gap:12px;align-items:end}
+.srow .sname{padding-block-end:8px}
+.srow .sname{font-size:15px;font-weight:700;color:var(--ink)}
+@media (max-width:540px){.srow{grid-template-columns:minmax(0,1fr);gap:6px}}
+.lvlnote{font-size:14.5px;color:var(--body);min-height:1.5em}
+.lvlnote b{font-family:var(--display);color:var(--accent);font-weight:700}
+.check{display:flex;align-items:center;gap:8px;font-size:14.5px;color:var(--body);cursor:pointer}
+.check input{appearance:none;-webkit-appearance:none;margin:0;flex-shrink:0;width:20px;height:20px;border-radius:50%;border:2px solid var(--dash);background:var(--field);display:grid;place-content:center;cursor:pointer;transition:background .15s,border-color .15s}
+.check input::after{content:"";width:6px;height:10px;border:solid var(--on-accent);border-width:0 2px 2px 0;transform:translateY(-1px) rotate(45deg);opacity:0}
+.check input:checked{background:var(--accent);border-color:var(--accent)}
+.check input:checked::after{opacity:1}
+
+details.help{font-size:14.5px}
+details.help summary{cursor:pointer;color:var(--accent);font-weight:700}
+details.help .in{display:flex;flex-direction:column;gap:10px;padding-block:12px 2px}
+.lvl-list{display:grid;grid-template-columns:44px minmax(0,1fr);gap:4px 12px;margin:0}
+.lvl-list dt{font-family:var(--display);font-weight:700;color:var(--ink)}
+.lvl-list dd{margin:0;color:var(--body)}
+.tests{margin:0;padding-inline-start:18px;display:flex;flex-direction:column;gap:4px}
+.tests li span{color:var(--muted)}
+
+/* language distance chart (from the talk) */
+:root{ --c1:#D9A24E; --c2:#7E9C8A; --c3:#A8471A; --c4:#1F2A44 }
+:root.dark{ --c1:#D9A24E; --c2:#8FB09C; --c3:#E0794B; --c4:#C9CFDE }
+.dist-title{font-family:var(--display);font-size:22px;font-weight:700;color:var(--ink);line-height:1.2}
+.dist-lead{margin:0;font-size:14px;color:var(--body)}
+.dist{display:flex;flex-direction:column;gap:12px;padding-block:4px}
+.drow{display:flex;flex-direction:column;gap:5px}
+.drow-top{display:flex;justify-content:space-between;gap:4px 12px;flex-wrap:wrap;font-size:15px;font-weight:700;color:var(--ink)}
+.drow-top span:last-child{font-size:13.5px;font-weight:700;color:var(--muted)}
+.drow.me .drow-top span{color:var(--accent)}
+.drow-top{align-items:flex-end}
+.drow-top .you{display:inline-block;color:var(--accent);margin-block:-8px -2px;pointer-events:none}
+.you svg{width:28px;height:20px;flex-shrink:0;margin-block-start:6px;order:-1}
+[dir=rtl] .you svg{transform:scaleX(-1)}
+.drow.me .drow-top .you{color:var(--accent);font-family:"Caveat","Segoe Print","Bradley Hand",cursive;font-weight:600;font-size:23px;line-height:1;display:inline-block;transform:rotate(-4deg);white-space:nowrap}
+.dtrack{position:relative;height:22px}
+.dbar{position:absolute;inset-block:0;inset-inline-start:0;border-radius:11px;display:flex;align-items:center;justify-content:flex-end;padding-inline-end:9px;font-size:11.5px;font-weight:800;color:#FAF6EE}
+.c1 .dbar{color:#1F2A44}
+:root.dark .c4 .dbar{color:#1F2A44}
+.c1{--rc:var(--c1)} .c2{--rc:var(--c2)} .c3{--rc:var(--c3)} .c4{--rc:var(--c4)}
+.dtrack.line::after{content:"";position:absolute;inset-inline-start:var(--at);top:-8px;bottom:-8px;border-inline-start:2px dashed var(--ink);z-index:2}
+.dseg{position:absolute;inset-block:0;display:flex;align-items:center;justify-content:center;border-radius:6px;overflow:hidden}
+.dseg-bg,.dseg-fill{position:absolute;inset-block:0;inset-inline-start:0;background:var(--rc)}
+.dseg-bg{inset-inline-end:0;opacity:.28}
+.dseg b{position:relative;font-size:11px;font-weight:800;color:var(--ink)}
+.dseg b.on{color:#FAF6EE}
+.c1 .dseg b.on{color:#1F2A44}
+:root.dark .c4 .dseg b.on{color:#1F2A44}
+.dend{position:absolute;top:50%;transform:translateY(-50%);font-size:11px;font-weight:800;color:var(--muted)}
+.drow .drow-top .dres{margin-inline-start:auto;font-size:14px;font-weight:800;color:var(--ink)}
+.drow.me .drow-top .dres{color:var(--accent)}
+.drow-top .you{margin-inline-end:0}
+.dist-plot{position:relative;display:flex;flex-direction:column;gap:12px;padding-block-end:22px}
+.dist-slider{position:absolute;top:0;bottom:0;inset-inline-start:-14px;width:calc(100% + 28px);height:100%;margin:0;padding:0;z-index:3;
+  -webkit-appearance:none;appearance:none;background:transparent;cursor:ew-resize;touch-action:pan-y}
+.dist-slider::-webkit-slider-runnable-track{height:100%;background:transparent;border:0}
+.dist-slider::-moz-range-track{height:100%;background:transparent;border:0}
+.dist-slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:28px;height:var(--plot-h,240px);background:transparent;border:0;cursor:ew-resize}
+.dist-slider::-moz-range-thumb{width:28px;height:var(--plot-h,240px);background:transparent;border:0;cursor:ew-resize}
+.dist-slider:focus{outline:none}
+.dist-grip{position:absolute;bottom:0;inset-inline-start:var(--at);transform:translateX(-50%);z-index:2;display:grid;place-items:center;width:40px;height:22px;
+  border-radius:11px;background:var(--accent);color:var(--on-accent);box-shadow:0 2px 6px rgba(0,0,0,.18);pointer-events:none;transition:transform .12s}
+[dir=rtl] .dist-grip{transform:translateX(50%)}
+.dist-grip svg{width:24px;height:12px}
+.dist-slider:hover ~ .dist-grip,.dist-slider:active ~ .dist-grip{transform:translateX(-50%) scale(1.12)}
+.dist-slider:focus-visible ~ .dist-grip{outline:2px solid var(--ink);outline-offset:2px}
+.dist-axlabel{font-size:12px;color:var(--muted);text-align:end;margin-block-start:-6px}
+.dist-axis{position:relative;height:52px;margin-block-end:-6px}
+.goal-note{position:absolute;bottom:0;inset-inline-start:var(--at);transform:translateX(-100%);display:inline-flex;align-items:flex-end;gap:2px;color:var(--accent);white-space:nowrap}
+[dir=rtl] .goal-note{transform:translateX(100%)}
+.goal-note .gl-lines{display:flex;flex-direction:column;align-items:flex-end;font-family:"Caveat","Segoe Print","Bradley Hand",cursive;font-weight:600;font-size:21px;line-height:1.05;transform:rotate(-3deg);margin-block-end:8px}
+.goal-note .gl-lines span:last-child{color:var(--muted)}
+.goal-note svg{width:18px;height:22px;flex-shrink:0;margin-inline-end:-6px}
+.goal-note.flip{transform:none;flex-direction:row-reverse}
+[dir=rtl] .goal-note.flip{transform:none}
+.goal-note.flip .gl-lines{align-items:flex-start;transform:rotate(3deg)}
+.goal-note.flip svg{transform:scaleX(-1);margin-inline-end:0;margin-inline-start:-6px}
+.dist-scale{position:relative;height:16px;font-size:11.5px;font-weight:700;color:var(--muted)}
+.dist-scale span{position:absolute;transform:translateX(-50%)}
+[dir=rtl] .dist-scale span{transform:translateX(50%)}
+.reached{position:absolute;top:50%;transform:translateY(-50%);display:inline-flex;align-items:center;gap:3px;color:var(--accent);pointer-events:none;white-space:nowrap}
+.reached svg{width:26px;height:16px;flex-shrink:0}
+[dir=rtl] .reached svg{transform:scaleX(-1)}
+.reached span{font-family:"Caveat","Segoe Print","Bradley Hand",cursive;font-weight:600;font-size:22px;line-height:1;display:inline-block;transform:rotate(-3deg)}
+.c1 .dbar{background:var(--c1)} .c2 .dbar{background:var(--c2)} .c3 .dbar{background:var(--c3)} .c4 .dbar{background:var(--c4)}
+.dbar.rest{opacity:.3}
+.dist-note{background:var(--field);border-radius:var(--r-sm);padding-block:12px;padding-inline:14px;font-size:14.5px;color:var(--body)}
+.dist-note b{color:var(--ink)}
+.dist-src{margin:0;font-size:12.5px;color:var(--muted)}
+
+/* native search */
+.search{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.search input{min-width:0;flex:1 1 200px}
+.picked{font-size:14px;color:var(--muted)}
+.picked b{color:var(--ink)}
+
+/* sliders */
+.sliders{display:flex;flex-direction:column;gap:14px}
+.sl{display:flex;flex-direction:column;gap:4px}
+.sl-top{display:flex;justify-content:space-between;gap:12px;font-size:15px;color:var(--ink);font-weight:600}
+.sl-top output{font-family:var(--display);font-weight:700;font-variant-numeric:tabular-nums}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.presets{display:flex;gap:8px;flex-wrap:wrap}
+.hint{font-size:14px;color:var(--muted)}
+
+.go{font:inherit;font-weight:700;font-size:17px;color:var(--on-accent);background:var(--accent);border:0;border-radius:var(--r-sm);padding-block:16px;padding-inline:22px;cursor:pointer}
+.go:hover{filter:brightness(1.08)}
+
+/* result card: navy, like the "My lesson" card in the talk */
+.result{position:sticky;top:calc(env(safe-area-inset-top,0px) + 16px);color:var(--card-ink);--pad:28px;display:flex;flex-direction:column;min-width:0}
+.rcard{background:var(--card);border-radius:var(--r);padding-block:var(--pad);padding-inline:var(--pad);display:flex;flex-direction:column;gap:20px;min-width:0}
+/* perforation: the card's bottom edge keeps the top halves of the holes, the strip's top edge keeps the bottom halves */
+.rcard.has-tear{border-end-start-radius:0;border-end-end-radius:0;padding-block-end:calc(var(--pad) - 4px);
+  -webkit-mask:radial-gradient(circle at 7px 100%,#0000 4px,#000 4.6px) 0 0/14px 100% repeat-x,radial-gradient(circle at 0 100%,#0000 11px,#000 11.6px),radial-gradient(circle at 100% 100%,#0000 11px,#000 11.6px);
+  -webkit-mask-composite:source-in;
+  mask:radial-gradient(circle at 7px 100%,#0000 4px,#000 4.6px) 0 0/14px 100% repeat-x,radial-gradient(circle at 0 100%,#0000 11px,#000 11.6px),radial-gradient(circle at 100% 100%,#0000 11px,#000 11.6px);
+  mask-composite:intersect}
+@media (max-width:920px){.result{position:static}}
+.result a{color:var(--hi)}
+.eyebrow{font-size:13px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--hi)}
+.big{font-family:var(--display);font-size:clamp(46px,5.4vw,64px);font-weight:700;letter-spacing:-.01em;line-height:1;color:var(--hi);font-variant-numeric:tabular-nums}
+.big small{font-family:var(--font);font-size:.34em;font-weight:700;letter-spacing:0;color:var(--card-ink);margin-inline-start:8px}
+.sub{color:var(--card-muted);font-size:15px;display:flex;flex-direction:column;gap:2px}
+.sub b{color:var(--card-ink);font-weight:700}
+.empty{color:var(--card-muted);font-size:15px;display:flex;flex-direction:column;gap:12px}
+.empty b{color:var(--card-ink)}
+.empty .ghost{font-family:var(--display);font-size:52px;font-weight:700;color:var(--card-line);line-height:1}
+
+.block{display:flex;flex-direction:column;gap:12px;border-top:1px solid var(--card-line);padding-block-start:18px}
+.block h3{margin:0;font-size:13px;font-weight:700;color:var(--card-muted);letter-spacing:.14em;text-transform:uppercase}
+
+/* a week of study, like the calendar on the talk's cover: one column per day, height = time, orange = with a teacher, cream = on your own */
+.wk-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.perday{font-size:15px;font-weight:700;color:var(--card-ink)}
+.wk-btns{display:flex;gap:6px;flex-shrink:0}
+.iconbtn{display:inline-flex;align-items:center;gap:6px;font:inherit;font-size:13px;font-weight:700;color:var(--card-ink);background:transparent;border:1px solid var(--card-line);border-radius:999px;padding-block:5px;padding-inline:10px;cursor:pointer}
+.iconbtn:hover{border-color:var(--hi)}
+.iconbtn svg{width:16px;height:16px}
+.week{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;align-items:end}
+.day{position:relative;display:flex;flex-direction:column;align-items:stretch;gap:4px;min-width:0;border-radius:8px;outline-offset:3px}
+/* instant tooltip (the browser's own title tooltip waits about a second) */
+.day::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);white-space:pre;z-index:2;
+  background:var(--card-ink);color:#1F2A44;font-size:12.5px;font-weight:700;line-height:1.45;padding-block:6px;padding-inline:10px;border-radius:8px;
+  box-shadow:0 4px 14px rgba(0,0,0,.25);opacity:0;visibility:hidden;pointer-events:none}
+.day:nth-child(-n+2)::after{left:0;transform:none}
+.day:nth-last-child(-n+2)::after{left:auto;right:0;transform:none}
+.day:hover::after,.day:focus-visible::after{opacity:1;visibility:visible}
+.day:hover .col{box-shadow:0 0 0 2px var(--hi)}
+.day .col{height:72px;display:flex;flex-direction:column;justify-content:flex-end;border-radius:8px;background:var(--card-soft);overflow:hidden}
+.day .seg-t{background:var(--hi)}
+.day .seg-s{background:#E9E1D1}
+.day .lbl{font-size:12px;font-weight:700;text-align:center;color:var(--card-ink);font-variant-numeric:tabular-nums;white-space:nowrap}
+.day .dn{font-size:11.5px;font-weight:700;text-align:center;color:var(--card-muted)}
+.day.rest .lbl{color:var(--card-muted)}
+.legend{display:flex;gap:6px 16px;flex-wrap:wrap;font-size:13px;color:var(--card-muted)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-inline-end:6px;vertical-align:-1px}
+
+/* skill bars on a Cambridge-hours scale */
+.bars{display:flex;flex-direction:column;gap:12px}
+.bar{display:flex;flex-direction:column;gap:5px}
+.bar-top{display:flex;justify-content:space-between;gap:8px;font-size:14.5px}
+.bar-top span:first-child{font-weight:700}
+.bar-top span:last-child{color:var(--card-muted);font-variant-numeric:tabular-nums;text-align:end}
+.track{position:relative;height:12px;border-radius:6px;background:var(--card-track)}
+.fill{position:absolute;inset-block:0;border-radius:6px;background:var(--hi);transition:inset-inline-start .3s,width .3s}
+.fill.done{background:var(--card-muted);opacity:.5}
+.dot{position:absolute;top:0;width:12px;height:12px;border-radius:50%;background:var(--card-ink);transform:translateX(-50%)}
+[dir=rtl] .dot{transform:translateX(50%)}
+.scale{position:relative;height:16px;font-size:11px;color:var(--card-muted);font-variant-numeric:tabular-nums}
+.scale span{position:absolute;transform:translateX(-50%)}
+[dir=rtl] .scale span{transform:translateX(50%)}
+
+.timeline{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.timeline li{display:grid;grid-template-columns:14px minmax(0,1fr) auto;gap:12px;align-items:center;font-size:15px;padding-block:5px;position:relative}
+.timeline li::before{content:"";width:12px;height:12px;border-radius:50%;border:2px solid var(--hi);background:var(--card);justify-self:center}
+.timeline li.goal::before{background:var(--hi)}
+.timeline li span:first-child{font-family:var(--display)}
+.timeline li:not(:last-child)::after{content:"";position:absolute;inset-inline-start:6px;top:calc(50% + 8px);height:calc(100% - 14px);border-inline-start:2px solid var(--card-line)}
+.timeline .when{color:var(--card-muted);font-variant-numeric:tabular-nums}
+
+.whatif{background:var(--card-soft);border-radius:var(--r-sm);padding-block:12px;padding-inline:14px;font-size:15px}
+.warn{background:#A8471A;color:#FAF6EE;border-radius:var(--r-sm);padding-block:12px;padding-inline:14px;font-size:14.5px;font-weight:600}
+.warns{display:flex;flex-direction:column;gap:8px}
+
+.share{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+/* share card: the talk's "My English plan" card — sand, navy text, rust day boxes */
+.scard{background:#F1E9DA;color:#1F2A44;border-radius:var(--r);padding-block:22px;padding-inline:22px;display:flex;flex-direction:column;gap:14px}
+.scard-brand{font-family:var(--display);font-size:19px;font-weight:700;color:#A8471A}
+.scard-big{font-family:var(--display);font-size:32px;font-weight:700;line-height:1.1}
+.scard-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}
+.scard-days span{height:28px;display:flex;align-items:center;justify-content:center;border-radius:7px;background:#A8471A;color:#FAF6EE;font-size:12px;font-weight:700}
+.scard-goal{font-size:17px;line-height:1.4;color:#414B5E}
+.scard-goal b{font-family:var(--display);color:#1F2A44}
+.scard-ft{display:flex;align-items:center;justify-content:space-between;gap:8px 12px;flex-wrap:wrap;font-size:15px;font-weight:700;color:#1F2A44;border-top:1px solid #E4D7BF;padding-block-start:12px}
+.scard-cta{background:#A8471A;color:#FAF6EE;border-radius:999px;padding-block:6px;padding-inline:14px;font-size:14px}
+/* "tear it off, take it with you": the share part hangs under the result like a tear-off strip on a street notice.
+   A row of punched holes marks the fold; a moment after the result appears, the strip comes loose on the left. */
+.tear{position:relative;padding-block:26px 24px;padding-inline:var(--pad);
+  background:#F1E9DA;color:#1F2A44;border-radius:0 0 var(--r) var(--r);display:flex;flex-direction:column;gap:12px;transform-origin:100% 0;
+  -webkit-mask:radial-gradient(circle at 7px 0,#0000 4px,#000 4.6px) 0 0/14px 100% repeat-x,radial-gradient(circle at 0 0,#0000 11px,#000 11.6px),radial-gradient(circle at 100% 0,#0000 11px,#000 11.6px);
+  -webkit-mask-composite:source-in;
+  mask:radial-gradient(circle at 7px 0,#0000 4px,#000 4.6px) 0 0/14px 100% repeat-x,radial-gradient(circle at 0 0,#0000 11px,#000 11.6px),radial-gradient(circle at 100% 0,#0000 11px,#000 11.6px);
+  mask-composite:intersect}
+@keyframes tearOff{0%{transform:none}50%{transform:translateY(12px) rotate(-3.6deg)}72%{transform:translateY(7px) rotate(-2.1deg)}88%{transform:translateY(9px) rotate(-2.8deg)}100%{transform:translateY(8px) rotate(-2.5deg)}}
+.tear.tearing{animation:tearOff 1.2s cubic-bezier(.3,.7,.3,1) 1.4s both}
+.tear.torn{transform:translateY(8px) rotate(-2.5deg)}
+@media (prefers-reduced-motion: reduce){.tear.tearing{animation:none;transform:translateY(8px) rotate(-2.5deg)}}
+.tear h3{margin:0;font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#A8471A}
+.tear .scard{background:#FAF6EE}
+.tear .slink,.tear .btn2,.tear .iconbtn{color:#1F2A44;border-color:#D9CCB2}
+.tear .slink:hover,.tear .btn2:hover,.tear .iconbtn:hover{border-color:#A8471A;color:#A8471A}
+.tear .copied{color:#6A6F7A}
+.tear .share input{background:#FAF6EE;color:#1F2A44;border-color:#D9CCB2}
+.tear .storyprev-h b{color:#1F2A44}
+/* variant to compare: the strip in a lighter navy, only the shared card stays light */
+.tear.navy{background:var(--card);color:var(--card-ink)}
+.tear.navy h3{color:var(--hi)}
+.tear.navy .scard{background:#F1E9DA}
+.tear.navy .slink,.tear.navy .btn2,.tear.navy .iconbtn{color:var(--card-ink);border-color:rgba(250,246,238,.28)}
+.tear.navy .slink:hover,.tear.navy .btn2:hover,.tear.navy .iconbtn:hover{border-color:var(--hi);color:var(--hi)}
+.tear.navy .copied{color:var(--card-muted)}
+.tear.navy .share input{background:var(--card-soft);color:var(--card-ink);border-color:rgba(250,246,238,.28)}
+.tear.navy .storyprev-h b{color:var(--card-ink)}
+.slinks{display:flex;flex-wrap:wrap;gap:6px}
+.slink{font-size:14px;font-weight:700;color:var(--card-ink);text-decoration:none;border:1px solid var(--card-line);border-radius:999px;padding-block:6px;padding-inline:12px}
+.slink:hover{border-color:var(--hi);color:var(--hi)}
+button.slink{font:inherit;font-size:14px;font-weight:700;background:transparent;cursor:pointer}
+.storyprev{display:flex;flex-direction:column;gap:10px;align-items:flex-start}
+.storyprev-h{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%}
+.storyimg{width:100%;max-width:240px;height:auto;aspect-ratio:9/16;border-radius:14px;box-shadow:0 6px 24px rgba(0,0,0,.35)}
+.btn2{font:inherit;font-size:14.5px;font-weight:700;color:var(--card-ink);background:transparent;border:1px solid var(--card-line);border-radius:var(--r-sm);padding-block:8px;padding-inline:14px;cursor:pointer}
+.btn2:hover{border-color:var(--hi)}
+.share input{flex:1 1 160px;min-width:0;font-size:12px;background:var(--card-soft);color:var(--card-ink);border-color:var(--card-line)}
+.copied{font-size:14px;color:var(--card-muted)}
+
+/* how we calculate */
+.how{margin-block-start:28px;background:var(--panel);border-radius:var(--r);padding-block:6px;padding-inline:24px}
+.how summary{cursor:pointer;font-family:var(--display);font-weight:700;font-size:19px;color:var(--ink);padding-block:14px}
+.how .in{display:flex;flex-direction:column;gap:12px;padding-block:0 22px;max-width:74ch}
+.how .in b{color:var(--ink)}
+.how ol{margin:0;padding-inline-start:20px;display:flex;flex-direction:column;gap:8px}
+.how table{border-collapse:collapse;font-size:14.5px;font-variant-numeric:tabular-nums}
+.how th,.how td{text-align:start;padding-block:6px;padding-inline:0 20px;border-bottom:1px solid var(--line)}
+.how th{font-family:var(--display);font-weight:700;color:var(--ink)}
+.tblwrap{overflow-x:auto}
+.formula{font-size:15px;background:var(--field);border-radius:var(--r-sm);padding-block:12px;padding-inline:14px;color:var(--ink)}
+
+footer{margin-block-start:22px;color:var(--muted);font-size:14px;display:flex;gap:6px 18px;flex-wrap:wrap}
+
+@media (max-width:540px){
+  body{padding-inline:16px}
+  .ladder{gap:4px}
+  .cell{min-width:38px;height:36px;padding-inline:4px;font-size:14px}
+  .grp.sub .cell{min-width:28px}
+  .step{padding-inline:16px}
+  .result{--pad:18px}
+}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+
+<div class="wrap" id="app">
+  <header class="top">
+    <div class="brand">
+      <span class="kicker" data-t="kicker"></span>
+      <h1 data-t="title"></h1>
+      <p data-t="tagline"></p>
+    </div>
+    <div class="controls">
+      <div class="seg" role="group" id="themeSeg">
+        <button type="button" data-theme-pick="light" data-t="light"></button>
+        <button type="button" data-theme-pick="dark" data-t="dark"></button>
+      </div>
+      <label class="langpick"><span data-t="pageLang"></span>
+        <select id="pageLang"></select>
+      </label>
+    </div>
+  </header>
+
+  <div class="grid">
+    <main class="form">
+
+      <section class="step" aria-labelledby="h-purpose">
+        <div class="step-h"><span class="step-n">1</span><h2 id="h-purpose" data-t="qPurpose"></h2><span class="aside" data-t="pickMany"></span></div>
+        <div class="purposes" id="purposes"></div>
+      </section>
+
+      <section class="step" aria-labelledby="h-native">
+        <div class="step-h"><span class="step-n">2</span><h2 id="h-native" data-t="qNative"></h2></div>
+        <div class="chips" id="nativeChips"></div>
+        <div class="search">
+          <input type="text" id="nativeSearch" list="nativeList" autocomplete="off">
+          <datalist id="nativeList"></datalist>
+          <span class="picked" id="nativePicked"></span>
+        </div>
+        <details class="help" id="whyNative">
+          <summary data-t="whyNative"></summary>
+          <div class="in" id="distChart"></div>
+        </details>
+      </section>
+
+      <section class="step" aria-labelledby="h-level">
+        <div class="step-h"><span class="step-n">3</span><h2 id="h-level" data-t="qLevel"></h2>
+          <div class="seg aside levelSeg" role="group">
+            <button type="button" data-steps="0" data-t="wholeLevels"></button>
+            <button type="button" data-steps="1" data-t="withSteps"></button>
+          </div>
+        </div>
+        <div id="curRows" class="rows"></div>
+        <label class="check"><input type="checkbox" id="linkCur" checked> <span data-t="linkCur"></span></label>
+        <details class="help" id="levelHelp">
+          <summary data-t="notSure"></summary>
+          <div class="in">
+            <dl class="lvl-list" id="lvlList"></dl>
+            <div><b data-t="freeTests"></b></div>
+            <ul class="tests" id="testList"></ul>
+          </div>
+        </details>
+      </section>
+
+      <section class="step" aria-labelledby="h-goal">
+        <div class="step-h"><span class="step-n">4</span><h2 id="h-goal" data-t="qGoal"></h2>
+          <div class="seg aside levelSeg" role="group">
+            <button type="button" data-steps="0" data-t="wholeLevels"></button>
+            <button type="button" data-steps="1" data-t="withSteps"></button>
+          </div>
+        </div>
+        <div class="rows" id="goalRows"></div>
+        <label class="check"><input type="checkbox" id="linkGoals" checked> <span data-t="linkGoals"></span></label>
+      </section>
+
+      <section class="step" aria-labelledby="h-time">
+        <div class="step-h"><span class="step-n">5</span><h2 id="h-time" data-t="qTime"></h2></div>
+        <div class="presets" id="presets"></div>
+        <div class="sliders">
+          <div class="sl">
+            <div class="sl-top"><label for="tHours" data-t="withTeacher"></label><output id="tOut" for="tHours"></output></div>
+            <input type="range" id="tHours" min="0" max="20" step="0.5">
+          </div>
+          <div class="sl">
+            <div class="sl-top"><label for="sHours" data-t="onOwn"></label><output id="sOut" for="sHours"></output></div>
+            <input type="range" id="sHours" min="0" max="40" step="0.5">
+          </div>
+        </div>
+        <div class="hint" data-t="ratioHint"></div>
+      </section>
+
+      <button class="go" id="goBtn" type="button" data-t="go"></button>
+    </main>
+
+    <aside class="result" id="result" aria-live="polite"></aside>
+  </div>
+
+  <details class="how" id="how">
+    <summary data-t="howTitle"></summary>
+    <div class="in" id="howBody"></div>
+  </details>
+
+  <footer>
+    <span data-t="madeBy"></span>
+    <span data-t="privacy"></span>
+  </footer>
+</div>
+
+<script>
+/* ===== All interface text lives here. Translations get their own key (es, uk, zh, ko, fa). ===== */
+const STR = {
+  en: {
+    title: "How Long to English?",
+    kicker: "Free calculator · CEFR levels",
+    tagline: "See how much time you need to reach your English goal, based on Cambridge English hours.",
+    pageLang: "Page language",
+    soon: "soon",
+    qPurpose: "Why do you need English?",
+    pickMany: "Pick one or more",
+    purposes: {
+      work: ["Work", "career, interviews, emails, meetings"],
+      exam: ["Exam", "IELTS, TOEFL, Cambridge and others"],
+      college: ["College", "lectures, texts, essays"],
+      everyday: ["Everyday life", "friends and relationships, neighbors, doctor, shopping, kids' school, citizenship interview"],
+      travel: ["Travel", "airport, hotel, transport, cafés"],
+      self: ["For myself", "movies, series, books, podcasts"]
+    },
+    qNative: "Your native language",
+    whyNative: "Why do we ask this?",
+    thisIsYou: "this is you!",
+    distTitle: "Same start, same hours, different finish",
+    distLead: "Three learners start from zero and study the same hours. Drag the dashed line to compare.",
+    hoursN: (n) => `${n} hours`,
+    noteT: (n) => `${n} h with a teacher`,
+    noteS: (n) => `+ ${n} h on your own`,
+    atN: (l, n) => `${l} after ${n} h`,
+    c2At: (n) => `C2 at ${n} h`,
+    sliderLabel: "Hours in total",
+    axisLabel: "hours in total, with a teacher and on your own",
+    speaker: (l) => `${l} speaker`,
+    bothWaysB: "Why:",
+    sameGoal: "Same goal, different effort:",
+    moreHours: (far, close, x) => { const an = (w) => (/^[AEIOU]/i.test(w) ? "an " : "a ") + w; return `${an(far)} speaker needs about ${x} times more hours than ${an(close)} speaker to reach the same level.`; },
+    bothWays: " the closer your first language is to English, the further the same hours take you.",
+    inCalc: "In this calculator: close languages × 0.9, middle × 1.0, far × 1.3.",
+    yourFactor: (l, f) => `${l}: × ${f}`,
+    noFsi: (l) => `FSI gives no figure for ${l}, so we use × 1.0.`,
+    distSrc: "Sources: Cambridge English, “Guided learning hours”; U.S. Foreign Service Institute, language learning timelines; Chiswick & Miller (2005), “Linguistic Distance”",
+    searchPh: "Other language…",
+    notListed: "Not in the list",
+    picked: "Selected:",
+    qLevel: "Your level now",
+    quick: "Quick",
+    detailed: "Detailed",
+    wholeLevels: "Whole levels",
+    withSteps: "With steps",
+    linkCur: "Same level for all skills",
+    notSure: "Not sure about your level?",
+    freeTests: "Free tests",
+    qGoal: "Your goal",
+    noGoal: "—",
+    noGoalTip: "No goal for this skill",
+    linkGoals: "Change all goals together",
+    qTime: "Your time per week",
+    withTeacher: "With a teacher or tutor",
+    onOwn: "On your own",
+    hPerWeek: "h/week",
+    presets: { easy: "Easy · 1 + 2", steady: "Steady · 3 + 6", intense: "Intensive · 7 + 14" },
+    ratioHint: "Recommended: study on your own twice as much as with a teacher.",
+    go: "Show my estimate",
+    skills: { sp: "Speaking", li: "Listening", re: "Reading", wr: "Writing" },
+    levels: {
+      A0: "I know a few words, or nothing yet.",
+      A1: "I can say simple things about myself, slowly and with help.",
+      A2: "I can handle short everyday talks: shops, directions, small talk.",
+      B1: "I can deal with most situations when I travel and talk about my experience.",
+      B2: "I can talk with native speakers without much effort on both sides.",
+      C1: "I use English easily for work and study, even on complex topics.",
+      C2: "I understand almost everything and say exactly what I mean."
+    },
+    tests: [
+      ["EF SET 4-skill", "https://www.efset.org/4-skill/", "all four skills, 90 min"],
+      ["EF SET Quick Check", "https://www.efset.org/quick-check/", "reading + listening, 15 min"],
+      ["Speak & Improve", "https://speakandimprove.com/", "speaking, by Cambridge; full test after sign-up"],
+      ["Write & Improve", "https://www.cambridgeenglish.org/learning-english/free-resources/write-and-improve/", "writing, by Cambridge"],
+      ["Vocabulary Size Test", "https://my.vocabularysize.com/", "how many words you know, no sign-up"],
+      ["CEFR self-assessment grid", "https://www.coe.int/en/web/portfolio/self-assessment-grid", "check yourself in 2 minutes"]
+    ],
+    emptyLead: "Your estimate will appear here.",
+    emptyBody: "Answer the five questions and press “Show my estimate”. You will see the time in months, a goal date, and how to split your hours between skills.",
+    estimate: "Your estimate",
+    months: "months",
+    month: "month",
+    years: "years",
+    year: "year",
+    weeks: "weeks",
+    perDay: (d) => `${d} a day, every day`,
+    sampleWeek: (d) => `A sample week · ${d} in total`,
+    shuffle: "Shuffle",
+    shuffleTip: "Show another way to spread the same hours over the week",
+    even: "Even",
+    evenTip: "Same time every day",
+    legendT: "with a teacher",
+    dayOff: "Day off",
+    legendS: "on your own",
+    hU: "h", mU: "m",
+    days: ["M","T","W","T","F","S","S"],
+    light: "Light",
+    dark: "Dark",
+    goalAround: "Goal around",
+    totalHours: "hours in total",
+    withTeacherShort: "with a teacher",
+    bySkill: "By skill",
+    reached: "already there",
+    stays: "stays the same",
+    noGoalShort: "no goal",
+    timelineFor: "Timeline for",
+    biggestGap: "your biggest gap",
+    about: "about",
+    whatIf: (m) => `Add 30 minutes a day on your own, and you reach your goal about ${m} ${m === 1 ? "month" : "months"} sooner.`,
+    whatIfSmall: "Add 30 minutes a day on your own, and you reach your goal a few weeks sooner.",
+    warnRatio: "You study on your own less than twice your class time. US colleges expect 2 hours of work for every hour in class.",
+    warnSpeak: "You have a speaking goal but no hours with a live person. Speaking does not grow without someone to talk to: a teacher, a tutor, or a conversation club.",
+    allReached: "You are already at your goals. Pick a higher goal to see an estimate.",
+    noHours: "Add some hours per week to see your estimate.",
+    copyLink: "Copy link to this plan",
+    shareTitle: "Take your plan with you",
+    cardKicker: "My English plan",
+    storyADay: "a day",
+    cta: "Calculate for free",
+    storyAsk: "How long will it take you?",
+    storyPreview: "Instagram Story preview",
+    close: "Close",
+    cardDaily: (d) => `${d} a day`,
+    cardGoalPre: "Goal:",
+    cardBy: "by",
+    cardFooter: " · How long will it take you?",
+    shareText: (d, g, by) => `I'm learning English ${d} a day. Goal: ${g} by ${by}. How long will it take you? Calculate for free:`,
+    inSkill: "in",
+    and: "and",
+    copied: "Link copied",
+    copyFallback: "Copy this link:",
+    howTitle: "How we calculate",
+    madeBy: "Made by an English learner for learners.",
+    privacy: "No sign-up. Nothing is saved. No ads.",
+    how: {
+      intro: "This is an estimate, not a promise. Real time depends on your age, your experience with languages, how intensive your study is, and how much English you use outside lessons.",
+      steps: [
+        "Cambridge English gives the usual number of hours with a teacher to reach each level, counted from zero. We take the difference between your level now and your goal.",
+        "US colleges count at least 2 hours of work outside class for every hour in class. So the full time is 3 × the teacher hours. In this version, an hour with a teacher and an hour on your own count the same.",
+        "Native language: languages close to English go a bit faster (× 0.9), far ones slower (× 1.3), the rest × 1.0. This is our estimate, based on US Foreign Service Institute data for English speakers learning other languages.",
+        "If you want to raise several skills, we use the average gap between them, the same way a Cambridge exam's overall score is the average of the skills. Skills without a goal are not counted.",
+        "“With steps” splits B1 into 4 steps and B2 into 5, the way Preply does (B1.1 … B2.5). It is not an official CEFR scale, and Cambridge gives hours only for whole levels, so inside a level we spread the hours evenly up to the next level. This is our estimate.",
+        "Total hours ÷ your hours per week = weeks. Months = weeks ÷ 4.35. The range (from–to) comes from Cambridge's own from–to numbers."
+      ],
+      tableTitle: "Cambridge hours with a teacher, from zero",
+      level: "Level", hours: "Hours",
+      groupsTitle: "Native language groups",
+      groups: [
+        ["× 0.9", "FSI categories I–II: Spanish, Portuguese, French, Italian, Dutch, the Scandinavian languages, Romanian, German, Haitian Creole, Indonesian, Malay, Swahili"],
+        ["× 1.0", "FSI category III (Ukrainian, Russian, Polish, Farsi, Vietnamese, Hindi, Turkish, Tagalog and many more) and languages FSI does not list"],
+        ["× 1.3", "FSI category IV: Chinese (Mandarin, Cantonese), Korean, Japanese, Arabic"]
+      ],
+      sourcesTitle: "Sources",
+      sources: [
+        ["Cambridge English: Guided learning hours", "https://support.cambridgeenglish.org/hc/en-gb/articles/202838506-Guided-learning-hours"],
+        ["34 CFR 600.2: definition of a credit hour", "https://www.ecfr.gov/current/title-34/subtitle-B/chapter-VI/part-600/subpart-A/section-600.2"],
+        ["U.S. Department of State, FSI: Foreign Language Training", "https://www.state.gov/foreign-language-training/"],
+        ["Council of Europe: CEFR self-assessment grid", "https://www.coe.int/en/web/portfolio/self-assessment-grid"]
+      ]
+    }
+  }
+};
+
+const PAGE_LANGS = [
+  ["en", "English", true], ["es", "Español", false], ["uk", "Українська", false],
+  ["zh", "中文", false], ["ko", "한국어", false], ["fa", "فارسی", false]
+];
+const RTL = new Set(["fa", "ar"]);
+
+/* ===== Data ===== */
+const LEVELS = ["A0","A1","A2","B1","B2","C1","C2"];
+const GLH = { A0:[0,0], A1:[90,100], A2:[180,200], B1:[350,400], B2:[500,600], C1:[700,800], C2:[1000,1200] };
+const SKILLS = ["sp","li","re","wr"];
+/* Steps inside B levels, as on Preply. Not an official CEFR scale: hours inside a level are spread evenly up to the next level. */
+const STEPS = { B1: 4, B2: 5 };
+const PURPOSES = {
+  work:     { sp:"B2", li:"B2", re:"B2", wr:"B1" },
+  exam:     { sp:"B2", li:"B2", re:"B2", wr:"B2" },
+  college:  { sp:"B2", li:"B2", re:"B2", wr:"B2" },
+  everyday: { sp:"B1", li:"B1", re:"B1", wr:"A2" },
+  travel:   { sp:"B1", li:"B1", re:"A2", wr:null },
+  self:     { sp:"B1", li:"B2", re:"B2", wr:null }
+};
+/* name, code, FSI category (1–4; 0 = FSI gives no figure). The factor follows the category:
+   I–II close to English × 0.9, III × 1.0, IV far × 1.3, not listed by FSI × 1.0.
+   Source: U.S. Department of State, FSI language categories. Chips first, then search-only. */
+const FSI_HOURS = { 1: [600, 750], 2: [900, 900], 3: [1100, 1100], 4: [2200, 2200] };
+const catFactor = (c) => c === 1 || c === 2 ? 0.9 : c === 4 ? 1.3 : 1.0;
+const NATIVE = [
+  ["Spanish","es",1],["Chinese","zh",4],["Vietnamese","vi",3],["Korean","ko",4],["Arabic","ar",4],
+  ["Farsi","fa",3],["Ukrainian","uk",3],["Portuguese","pt",1],["Japanese","ja",4],["Tagalog","tl",3]
+];
+const NATIVE_MORE = [
+  ["Danish","da",1],["Dutch","nl",1],["French","fr",1],["Italian","it",1],["Norwegian","no",1],["Romanian","ro",1],["Swedish","sv",1],
+  ["German","de",2],["Haitian Creole","ht",2],["Indonesian","id",2],["Malay","ms",2],["Swahili","sw",2],
+  ["Albanian","sq",3],["Amharic","am",3],["Armenian","hy",3],["Azerbaijani","az",3],["Bengali","bn",3],["Bulgarian","bg",3],
+  ["Burmese","my",3],["Czech","cs",3],["Dari","prs",3],["Estonian","et",3],["Finnish","fi",3],["Georgian","ka",3],["Greek","el",3],
+  ["Hebrew","he",3],["Hindi","hi",3],["Hungarian","hu",3],["Icelandic","is",3],["Kazakh","kk",3],["Khmer","km",3],["Kurdish","ku",3],
+  ["Kyrgyz","ky",3],["Lao","lo",3],["Latvian","lv",3],["Lithuanian","lt",3],["Macedonian","mk",3],["Mongolian","mn",3],["Nepali","ne",3],
+  ["Polish","pl",3],["Russian","ru",3],["Serbian / Croatian / Bosnian","sh",3],["Sinhala","si",3],["Slovak","sk",3],["Slovenian","sl",3],
+  ["Somali","so",3],["Tajik","tg",3],["Tamil","ta",3],["Telugu","te",3],["Thai","th",3],["Tibetan","bo",3],["Turkish","tr",3],
+  ["Turkmen","tk",3],["Urdu","ur",3],["Uzbek","uz",3],
+  ["Chinese (Mandarin)","zh",4],["Chinese (Cantonese)","yue",4],
+  ["Belarusian","be",0],["Catalan","ca",0],["Gujarati","gu",0],["Hausa","ha",0],["Hmong","hmn",0],["Igbo","ig",0],["Kannada","kn",0],
+  ["Kinyarwanda","rw",0],["Malayalam","ml",0],["Marathi","mr",0],["Oromo","om",0],["Pashto","ps",0],["Punjabi","pa",0],
+  ["Tigrinya","ti",0],["Yoruba","yo",0],["Zulu","zu",0]
+];
+const ALL_NATIVE = [...NATIVE, ...NATIVE_MORE];
+const PRESETS = { easy:[1,2], steady:[3,6], intense:[7,14] };
+
+/* ===== State ===== */
+const state = {
+  lang: "en",
+  purposes: new Set(["everyday"]),
+  native: null,                 // code or "other"
+  steps: false,
+  linkCur: true,
+  cur: { sp:"A2", li:"A2", re:"A2", wr:"A2" },
+  goal: { ...PURPOSES.everyday },
+  linkGoals: true,
+  t: 3, s: 6,
+  week: null,          // null = even; else 7 × {t, s} in hours
+  shown: false,
+  distAt: 600,         // hours on the "why we ask" chart
+  torn: false          // the share strip comes loose once; later redraws keep it loose
+};
+
+const $ = (id) => document.getElementById(id);
+const T = () => STR[state.lang] || STR.en;
+const base = (l) => l.split(".")[0];
+const stepNo = (l) => l.includes(".") ? +l.split(".")[1] : 1;
+function rank(l){ const b = base(l), i = LEVELS.indexOf(b), n = STEPS[b]; return n ? i + (stepNo(l) - 1) / n : i; }
+function hrs(l, j){
+  const b = base(l), n = STEPS[b];
+  if (!n || stepNo(l) === 1) return GLH[b][j];
+  const nx = LEVELS[LEVELS.indexOf(b) + 1];
+  return GLH[b][j] + (stepNo(l) - 1) / n * (GLH[nx][j] - GLH[b][j]);
+}
+const mid = (l) => (hrs(l, 0) + hrs(l, 1)) / 2;
+const isLevel = (l) => typeof l === "string" && LEVELS.includes(base(l)) && (!l.includes(".") || (STEPS[base(l)] && stepNo(l) >= 1 && stepNo(l) <= STEPS[base(l)]));
+function levelOptions(){ return state.steps ? LEVELS.flatMap(L => STEPS[L] ? Array.from({ length: STEPS[L] }, (_, i) => `${L}.${i + 1}`) : [L]) : LEVELS; }
+function toMode(l, steps){ if (!l) return l; const b = base(l); return steps && STEPS[b] ? (l.includes(".") ? l : b + ".1") : b; }
+const fmtH = (h) => (Math.round(h * 2) / 2).toString();
+const nf = () => new Intl.NumberFormat(state.lang);
+const monthFmt = () => new Intl.DateTimeFormat(state.lang, { month: "short", year: "numeric" });
+function fmtDur(h){
+  const t = T(); let m = Math.round(h * 60 / 5) * 5;
+  if (m <= 0) return "—";
+  const hh = Math.floor(m / 60), mm = m % 60;
+  return hh && mm ? `${hh}${t.hU} ${mm}${t.mU}` : hh ? `${hh}${t.hU}` : `${mm}${t.mU}`;
+}
+/* Spread the week's hours over 7 days: lessons of up to 1 h with a teacher, self-study in 15-min pieces, some rest days. Totals stay the same. */
+function shuffleWeek(T_, S_){
+  const tU = Math.round(T_ * 4), sU = Math.round(S_ * 4);
+  const totalU = tU + sU;
+  const lessons = []; for (let left = tU; left > 0; left -= 4) lessons.push(Math.min(4, left));
+  let rest = totalU < 28 ? 2 + Math.floor(Math.random() * 2) : Math.floor(Math.random() * 3);
+  rest = Math.min(rest, 7 - Math.max(1, Math.min(7, Math.ceil(totalU / 16)))); // keep days under ~4 h
+  const order = [0,1,2,3,4,5,6].sort(() => Math.random() - .5);
+  const active = order.slice(0, 7 - Math.max(0, rest));
+  const days = Array.from({ length: 7 }, () => ({ t: 0, s: 0 }));
+  const shuffledActive = active.slice().sort(() => Math.random() - .5);
+  lessons.forEach((u, i) => { days[shuffledActive[i % shuffledActive.length]].t += u; });
+  const w = active.map(() => .5 + Math.random());
+  const wsum = w.reduce((a, b) => a + b, 0);
+  let given = 0;
+  active.forEach((d, i) => { const u = Math.floor(sU * w[i] / wsum); days[d].s += u; given += u; });
+  for (let i = 0; given < sU; i = (i + 1) % active.length){ days[active[Math.floor(Math.random() * active.length)]].s += 1; given += 1; }
+  return days.map(d => ({ t: d.t / 4, s: d.s / 4 }));
+}
+function addWeeks(w){ const d = new Date(); d.setDate(d.getDate() + Math.round(w * 7)); return d; }
+
+/* ===== Calculation (pure) ===== */
+function multiplier(code){
+  const hit = ALL_NATIVE.find(n => n[1] === code);
+  return hit ? catFactor(hit[2]) : 1.0;
+}
+function compute(st){
+  const included = SKILLS.filter(k => st.goal[k] && rank(st.goal[k]) > rank(st.cur[k]));
+  const weekly = st.t + st.s;
+  const m = multiplier(st.native);
+  if (!included.length) return { status: "reached" };
+  if (weekly <= 0) return { status: "nohours" };
+  const gaps = included.map(k => ({
+    k,
+    lo: hrs(st.goal[k], 0) - hrs(st.cur[k], 0),
+    hi: hrs(st.goal[k], 1) - hrs(st.cur[k], 1),
+    mid: mid(st.goal[k]) - mid(st.cur[k])
+  }));
+  const n = gaps.length;
+  const avgLo = gaps.reduce((a,g) => a + g.lo, 0) / n;
+  const avgHi = gaps.reduce((a,g) => a + g.hi, 0) / n;
+  const hoursLo = 3 * m * avgLo, hoursHi = 3 * m * avgHi;
+  const weeksLo = hoursLo / weekly, weeksHi = hoursHi / weekly;
+  const weeksMid = (weeksLo + weeksHi) / 2;
+  const sumMid = gaps.reduce((a,g) => a + g.mid, 0);
+  const perSkill = Object.fromEntries(gaps.map(g => [g.k, weekly * g.mid / sumMid]));
+  // biggest gap: path for the timeline (speaking wins ties)
+  const big = gaps.slice().sort((a,b) => b.mid - a.mid || SKILLS.indexOf(a.k) - SKILLS.indexOf(b.k))[0];
+  const curL = st.cur[big.k], goalL = st.goal[big.k];
+  const points = LEVELS.filter(L => rank(L) > rank(curL) && rank(L) < rank(goalL));
+  points.push(goalL);
+  const milestones = points.map(L => ({ level: L, weeks: (mid(L) - mid(curL)) / big.mid * weeksMid, goal: L === goalL }));
+  // what if: +30 min a day on your own
+  const weeksMidPlus = ((hoursLo + hoursHi) / 2) / (weekly + 3.5);
+  const savedMonths = (weeksMid - weeksMidPlus) / 4.35;
+  return {
+    status: "ok", m, n, included, hoursLo, hoursHi, weeksLo, weeksHi, weeksMid,
+    teacherShare: st.t / weekly, perSkill, big: big.k, milestones, savedMonths,
+    warnRatio: st.s < 2 * st.t,
+    warnSpeak: included.includes("sp") && st.t === 0
+  };
+}
+
+/* ===== Rendering ===== */
+function chip(label, pressed, onClick, opts = {}){
+  const b = document.createElement("button");
+  b.type = "button"; b.className = "chip" + (opts.lvl ? " lvl" : "");
+  b.textContent = label; b.setAttribute("aria-pressed", pressed ? "true" : "false");
+  if (opts.title) b.title = opts.title;
+  if (opts.disabled) b.disabled = true;
+  b.addEventListener("click", onClick);
+  return b;
+}
+
+function renderStatic(){
+  const t = T();
+  document.documentElement.lang = state.lang;
+  document.documentElement.dir = RTL.has(state.lang) ? "rtl" : "ltr";
+  document.querySelectorAll("[data-t]").forEach(el => { const v = t[el.dataset.t]; if (typeof v === "string") el.textContent = v; });
+  // page language
+  const sel = $("pageLang"); sel.innerHTML = "";
+  PAGE_LANGS.forEach(([code, name, ready]) => {
+    const o = document.createElement("option"); o.value = code;
+    o.textContent = ready ? name : `${name} (${t.soon})`; o.disabled = !ready;
+    if (code === state.lang) o.selected = true; sel.appendChild(o);
+  });
+  $("nativeSearch").placeholder = t.searchPh;
+  const dl = $("nativeList"); dl.innerHTML = "";
+  [...new Set(ALL_NATIVE.map(n => n[0]))].sort().concat(t.notListed).forEach(n => { const o = document.createElement("option"); o.value = n; dl.appendChild(o); });
+  // level help
+  const lvl = $("lvlList"); lvl.innerHTML = "";
+  LEVELS.forEach(L => { const dt = document.createElement("dt"); dt.textContent = L; const dd = document.createElement("dd"); dd.textContent = t.levels[L]; lvl.append(dt, dd); });
+  const tl = $("testList"); tl.innerHTML = "";
+  t.tests.forEach(([name, url, note]) => {
+    const li = document.createElement("li"); const a = document.createElement("a");
+    a.href = url; a.target = "_blank"; a.rel = "noopener"; a.textContent = name;
+    const s = document.createElement("span"); s.textContent = " — " + note; li.append(a, s); tl.appendChild(li);
+  });
+  // presets
+  const pr = $("presets"); pr.innerHTML = "";
+  Object.entries(PRESETS).forEach(([k, [a, b]]) => {
+    pr.appendChild(chip(t.presets[k], state.t === a && state.s === b, () => { state.t = a; state.s = b; state.week = null; update(); }));
+  });
+  renderHow();
+}
+
+/* "Why we ask": three roads on one hours scale. Each road is the level ladder (Cambridge hours) stretched by the
+   language factor, so the same line of hours crosses each road at a different level. The line can be dragged.
+   The visitor's language takes the place of the example in its group. */
+const DIST_GROUPS = [
+  { f: 0.9, ex: "Spanish", cls: "c1" },
+  { f: 1.0, ex: "Ukrainian", cls: "c3" },
+  { f: 1.3, ex: "Korean", cls: "c4" }
+];
+const DIST_STEPS = ["A0","A1","A2","B1","B2","C1","C2"];
+function levelAfter(at, x){
+  // the level reached after x teacher hours; "+" once past the middle of a level (CEFR plus levels)
+  let i = 0; DIST_STEPS.forEach((L, k) => { if (at(L) <= x) i = k; });
+  const L = DIST_STEPS[i], nx = DIST_STEPS[i + 1];
+  if (!nx || L === "A0") return L;
+  return (x - at(L)) / (at(nx) - at(L)) >= .5 ? L + "+" : L;
+}
+function renderDist(){
+  const t = T(); const box = $("distChart"); box.innerHTML = "";
+  const pick = ALL_NATIVE.find(n => n[1] === state.native);
+  const MAX = 1600;
+  const pct = (h) => h / MAX * 100;
+  const h = document.createElement("div"); h.className = "dist-title"; h.textContent = t.distTitle;
+  const lead = document.createElement("p"); lead.className = "dist-lead"; lead.textContent = t.distLead;
+  const chart = document.createElement("div"); chart.className = "dist";
+  const plot = document.createElement("div"); plot.className = "dist-plot";
+  // hand-written hours note that follows the dashed line
+  const axis = document.createElement("div"); axis.className = "dist-axis"; axis.setAttribute("aria-hidden", "true");
+  const gl = document.createElement("span"); gl.className = "goal-note";
+  const gt = document.createElement("span"); gt.className = "gl-lines";
+  const gt1 = document.createElement("span"), gt2 = document.createElement("span"); gt.append(gt1, gt2); gl.append(gt);
+  gl.insertAdjacentHTML("beforeend", '<svg viewBox="0 0 20 22" aria-hidden="true"><path d="M4 2 C10 6 12 12 11 19" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M6 15 L11 20 L15.5 14.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>');
+  axis.appendChild(gl); plot.appendChild(axis);
+  const rows = [];
+  DIST_GROUPS.forEach(g => {
+    const me = !!pick && catFactor(pick[2]) === g.f;
+    const name = me ? pick[0] : g.ex;
+    const at = (L) => L === "A0" ? 0 : mid(L) * g.f;      // teacher hours to reach level L
+    const row = document.createElement("div"); row.className = "drow " + g.cls + (me ? " me" : "");
+    const top = document.createElement("div"); top.className = "drow-top";
+    const a = document.createElement("span"); a.textContent = t.speaker(name);
+    top.append(a);
+    const res = document.createElement("span"); res.className = "dres"; top.appendChild(res);
+    const tr = document.createElement("div"); tr.className = "dtrack line"; tr.setAttribute("role", "img");
+    const segs = [];
+    for (let i = 0; i < DIST_STEPS.length - 1; i++){
+      const L = DIST_STEPS[i], s0 = at(L), s1 = at(DIST_STEPS[i + 1]);
+      const seg = document.createElement("div"); seg.className = "dseg";
+      seg.style.insetInlineStart = pct(s0) + "%"; seg.style.width = `calc(${pct(s1 - s0)}% - 2px)`;
+      const bg = document.createElement("i"); bg.className = "dseg-bg";
+      const fill = document.createElement("i"); fill.className = "dseg-fill";
+      seg.append(bg, fill);
+      let lb = null;
+      if (L !== "A0"){ lb = document.createElement("b"); lb.textContent = L; seg.appendChild(lb); }
+      tr.appendChild(seg); segs.push({ s0, s1, fill, lb });
+    }
+    const c2 = document.createElement("span"); c2.className = "dend"; c2.textContent = "C2"; c2.style.insetInlineStart = `calc(${pct(at("C2"))}% + 4px)`;
+    tr.appendChild(c2);
+    row.append(top, tr); plot.appendChild(row);
+    rows.push({ at, segs, res, tr, name });
+  });
+  // the dashed line itself is the slider: an invisible range input lies over the roads, and its tall
+  // transparent thumb sits right on the line, so you grab the line. A small grip at its foot shows where to hold.
+  const sl = document.createElement("input");
+  sl.type = "range"; sl.id = "distSlider"; sl.className = "dist-slider"; sl.min = 0; sl.max = MAX; sl.step = 50; sl.value = state.distAt;
+  sl.setAttribute("aria-label", t.sliderLabel);
+  const grip = document.createElement("span"); grip.className = "dist-grip"; grip.setAttribute("aria-hidden", "true");
+  grip.innerHTML = '<svg viewBox="0 0 28 14"><path d="M9 3 L4 7 L9 11 M19 3 L24 7 L19 11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  plot.append(sl, grip);
+  chart.appendChild(plot);
+  requestAnimationFrame(() => { plot.style.setProperty("--plot-h", plot.offsetHeight + "px"); });
+  const sc = document.createElement("div"); sc.className = "dist-scale"; sc.setAttribute("aria-hidden", "true");
+  [0, 400, 800, 1200, 1600].forEach(v => { const e = document.createElement("span"); e.textContent = nf().format(v * 3); e.style.insetInlineStart = pct(v) + "%"; sc.appendChild(e); });
+  chart.append(sc);
+  const paint = () => {
+    // the line moves in hours with a teacher; everything shown is the total (× 3: 1 hour of class + 2 on your own)
+    const AT = state.distAt, N = nf().format(AT * 3);
+    chart.style.setProperty("--at", pct(AT) + "%");
+    gt1.textContent = t.noteT(nf().format(AT));
+    gt2.textContent = t.noteS(nf().format(AT * 2));
+    gl.classList.toggle("flip", pct(AT) < 50);   // near the start, write the note on the other side of the line
+    sl.setAttribute("aria-valuetext", t.hoursN(N));
+    rows.forEach(r => {
+      r.segs.forEach(sg => {
+        const solid = Math.max(0, Math.min(1, (AT - sg.s0) / (sg.s1 - sg.s0)));
+        sg.fill.style.width = (solid * 100) + "%";
+        if (sg.lb) sg.lb.className = (sg.s0 + sg.s1) / 2 < AT ? "on" : "";
+      });
+      const c2 = r.at("C2");
+      r.res.textContent = AT >= c2 ? t.c2At(nf().format(Math.round(c2 * 3 / 10) * 10)) : t.atN(levelAfter(r.at, AT), N);
+      r.tr.setAttribute("aria-label", `${t.speaker(r.name)}: ${r.res.textContent}`);
+    });
+  };
+  sl.addEventListener("input", () => { if (+sl.value < 50) sl.value = 50; state.distAt = +sl.value; paint(); });
+  paint();
+  const note = document.createElement("div"); note.className = "dist-note";
+  // the takeaway, with the same names as the roads: how many times more hours the far road takes than the close one
+  const ratio = DIST_GROUPS[2].f / DIST_GROUPS[0].f;
+  const nb = document.createElement("b"); nb.textContent = t.sameGoal; note.append(nb, " " + t.moreHours(rows[2].name, rows[0].name, nf().format(Math.round(ratio * 2) / 2)));
+  const calc = document.createElement("p"); calc.className = "dist-lead";
+  if (pick && !pick[2]) calc.textContent = t.noFsi(pick[0]);
+  const src = document.createElement("p"); src.className = "dist-src"; src.textContent = t.distSrc;
+  box.append(h, lead, chart, note);
+  if (calc.textContent) box.appendChild(calc);
+  box.appendChild(src);
+}
+
+function renderForm(){
+  const t = T();
+  renderDist();
+  // purposes
+  const pw = $("purposes"); pw.innerHTML = "";
+  Object.keys(PURPOSES).forEach(k => {
+    const b = document.createElement("button"); b.type = "button"; b.className = "pcard";
+    b.setAttribute("aria-pressed", state.purposes.has(k) ? "true" : "false");
+    const h = document.createElement("b"); h.textContent = t.purposes[k][0];
+    const s = document.createElement("span"); s.textContent = t.purposes[k][1];
+    b.append(h, s);
+    b.addEventListener("click", () => {
+      if (state.purposes.has(k)) state.purposes.delete(k); else state.purposes.add(k);
+      applyPurposes(); update();
+    });
+    pw.appendChild(b);
+  });
+  // native
+  const nc = $("nativeChips"); nc.innerHTML = "";
+  NATIVE.forEach(([name, code]) => nc.appendChild(chip(name, state.native === code, () => {
+    state.native = state.native === code ? null : code; $("nativeSearch").value = ""; update();
+  })));
+  const pick = ALL_NATIVE.find(n => n[1] === state.native);
+  const isChip = NATIVE.some(n => n[1] === state.native);
+  const pk = $("nativePicked"); pk.innerHTML = "";
+  if (state.native && !isChip){
+    const b = document.createElement("b"); b.textContent = pick ? pick[0] : t.notListed;
+    pk.append(t.picked + " ", b);
+  }
+  // whole levels / with steps (both switches show the same choice)
+  document.querySelectorAll(".levelSeg button").forEach(b => b.setAttribute("aria-pressed", (b.dataset.steps === "1") === state.steps ? "true" : "false"));
+  // current level, one row per skill
+  const cd = $("curRows"); cd.innerHTML = "";
+  SKILLS.forEach(k => {
+    const row = document.createElement("div"); row.className = "srow";
+    const n = document.createElement("div"); n.className = "sname"; n.textContent = t.skills[k];
+    row.append(n, ladder(state.cur[k], (L) => setCur(k, L), { from: "A0" })); cd.appendChild(row);
+  });
+  $("linkCur").checked = state.linkCur;
+  // goals
+  const gr = $("goalRows"); gr.innerHTML = "";
+  SKILLS.forEach(k => {
+    const row = document.createElement("div"); row.className = "srow";
+    const n = document.createElement("div"); n.className = "sname"; n.textContent = t.skills[k];
+    row.append(n, ladder(state.goal[k], (L) => setGoal(k, L), { from: "A1", none: true, min: state.cur[k], onNone: () => { state.goal[k] = null; update(); } }));
+    gr.appendChild(row);
+  });
+  $("linkGoals").checked = state.linkGoals;
+  // sliders
+  $("tHours").value = state.t; $("sHours").value = state.s;
+  $("tOut").textContent = `${fmtH(state.t)} ${t.hPerWeek}`;
+  $("sOut").textContent = `${fmtH(state.s)} ${t.hPerWeek}`;
+  document.querySelectorAll("#presets .chip").forEach((b, i) => {
+    const [a, s] = Object.values(PRESETS)[i];
+    b.setAttribute("aria-pressed", state.t === a && state.s === s ? "true" : "false");
+  });
+}
+
+/* One row of levels. With steps on, B1 and B2 become a joined group of steps under one label. */
+function ladder(value, onPick, o){
+  const t = T();
+  const wrap = document.createElement("div"); wrap.className = "ladder";
+  const cellBtn = (label, v, title, pressed, disabled, onClick) => {
+    const b = document.createElement("button"); b.type = "button"; b.className = "cell";
+    b.textContent = label; b.title = title; b.setAttribute("aria-label", v || title);
+    b.setAttribute("aria-pressed", pressed ? "true" : "false"); if (disabled) b.disabled = true;
+    b.addEventListener("click", onClick); return b;
+  };
+  if (o.none){
+    const g = document.createElement("div"); g.className = "grp";
+    const c = document.createElement("div"); c.className = "gcells";
+    c.appendChild(cellBtn(t.noGoal, "", t.noGoalTip, !value, false, o.onNone));
+    g.appendChild(c); wrap.appendChild(g);
+  }
+  LEVELS.slice(LEVELS.indexOf(o.from)).forEach(L => {
+    const g = document.createElement("div"); g.className = "grp";
+    const c = document.createElement("div"); c.className = "gcells";
+    if (state.steps && STEPS[L]){
+      g.classList.add("sub");
+      const lab = document.createElement("div"); lab.className = "glabel"; lab.textContent = L; g.appendChild(lab);
+      for (let i = 1; i <= STEPS[L]; i++){
+        const v = `${L}.${i}`;
+        c.appendChild(cellBtn(String(i), v, `${v} · ${t.levels[L]}`, value === v, o.min && rank(v) < rank(o.min), () => onPick(v)));
+      }
+      if (value && base(value) === L) g.classList.add("on");
+    } else {
+      c.appendChild(cellBtn(L, L, t.levels[L], value === L, o.min && rank(L) < rank(o.min), () => onPick(L)));
+    }
+    g.appendChild(c); wrap.appendChild(g);
+  });
+  return wrap;
+}
+function setCur(k, L){
+  if (state.linkCur) SKILLS.forEach(j => state.cur[j] = L); else state.cur[k] = L;
+  update();
+}
+function setGoal(k, L){
+  if (state.linkGoals){
+    SKILLS.forEach(j => { if ((j === k || state.goal[j]) && rank(L) >= rank(state.cur[j])) state.goal[j] = L; });
+  } else state.goal[k] = L;
+  update();
+}
+function setSteps(on){
+  state.steps = on;
+  SKILLS.forEach(k => { state.cur[k] = toMode(state.cur[k], on); state.goal[k] = toMode(state.goal[k], on); });
+  update();
+}
+function applyPurposes(){
+  if (!state.purposes.size) return;
+  SKILLS.forEach(k => {
+    let best = null;
+    state.purposes.forEach(p => { const v = PURPOSES[p][k]; if (v && (!best || rank(v) > rank(best))) best = v; });
+    state.goal[k] = toMode(best, state.steps);
+  });
+}
+
+/* skill track on the Cambridge-hours scale (A0 = 0 … C2 = 1,100 h mid) */
+const MAXH = mid("C2");
+const pos = (L) => (mid(L) / MAXH) * 100;
+
+function renderResult(){
+  const t = T(); const host = $("result"); host.innerHTML = "";
+  const r = document.createElement("div"); r.className = "rcard"; host.appendChild(r);
+  if (!state.shown){
+    const e = document.createElement("div"); e.className = "empty";
+    const g = document.createElement("div"); g.className = "ghost"; g.textContent = "— " + t.months;
+    const p1 = document.createElement("b"); p1.textContent = t.emptyLead;
+    const p2 = document.createElement("span"); p2.textContent = t.emptyBody;
+    e.append(g, p1, p2);
+    const eb = document.createElement("div"); eb.className = "eyebrow"; eb.textContent = t.estimate;
+    r.append(eb, e); return;
+  }
+  const c = compute(state);
+  const eb = document.createElement("div"); eb.className = "eyebrow"; eb.textContent = t.estimate; r.appendChild(eb);
+  if (c.status === "reached" || c.status === "nohours"){
+    const p = document.createElement("div"); p.className = "empty";
+    const b = document.createElement("b");
+    b.textContent = c.status === "reached" ? t.allReached : t.noHours; p.appendChild(b); r.appendChild(p);
+    r.classList.add("has-tear"); host.appendChild(shareBlock(c)); return;
+  }
+  // headline: weeks under 2 months, months up to 17, years (to the nearest half) above that
+  let lo = Math.round(c.weeksLo / 4.35), hi = Math.round(c.weeksHi / 4.35), unit = t.months;
+  if (hi < 2){ lo = Math.max(1, Math.round(c.weeksLo)); hi = Math.max(lo, Math.round(c.weeksHi)); unit = t.weeks; }
+  else if (hi > 17){
+    const half = (w) => Math.max(0.5, Math.round(w / 4.35 / 12 * 2) / 2);
+    lo = half(c.weeksLo); hi = half(c.weeksHi); unit = hi <= 1 ? t.year : t.years;
+  }
+  else { lo = Math.max(1, lo); }
+  const big = document.createElement("div"); big.className = "big";
+  const NF = nf();
+  big.textContent = lo === hi ? NF.format(lo) : `${NF.format(lo)}–${NF.format(hi)}`;
+  const sm = document.createElement("small"); sm.textContent = unit; big.appendChild(sm);
+  const sub = document.createElement("div"); sub.className = "sub";
+  const mf = monthFmt();
+  const d1 = mf.format(addWeeks(c.weeksLo)), d2 = mf.format(addWeeks(c.weeksHi));
+  const l1 = document.createElement("span"); l1.append(t.goalAround + " ");
+  const b1 = document.createElement("b"); b1.textContent = d1 === d2 ? d1 : `${d1} – ${d2}`; l1.appendChild(b1);
+  const N = nf();
+  const r10 = (x) => Math.round(x / 10) * 10;
+  const l2 = document.createElement("span");
+  l2.textContent = `${N.format(r10(c.hoursLo))}–${N.format(r10(c.hoursHi))} ${t.totalHours}`
+    + (state.t > 0 ? ` · ${N.format(r10(c.hoursLo * c.teacherShare))}–${N.format(r10(c.hoursHi * c.teacherShare))} ${t.withTeacherShort}` : "");
+  sub.append(l1, l2);
+  const head = document.createElement("div"); head.style.display = "flex"; head.style.flexDirection = "column"; head.style.gap = "8px";
+  head.append(big, sub); r.appendChild(head);
+
+  // one clear number for every day, or a shuffled sample week with the same totals
+  r.appendChild(weekBlock());
+
+  // by skill
+  const bs = document.createElement("div"); bs.className = "block";
+  const h3 = document.createElement("h3"); h3.textContent = t.bySkill; bs.appendChild(h3);
+  const bars = document.createElement("div"); bars.className = "bars";
+  SKILLS.forEach(k => {
+    const bar = document.createElement("div"); bar.className = "bar";
+    const top = document.createElement("div"); top.className = "bar-top";
+    const a = document.createElement("span"); a.textContent = t.skills[k];
+    const b = document.createElement("span");
+    const g = state.goal[k], cu = state.cur[k];
+    if (!g) b.textContent = `${cu} · ${t.noGoalShort}`;
+    else if (rank(g) === rank(cu)) b.textContent = `${cu} · ${t.stays}`;
+    else if (rank(g) < rank(cu)) b.textContent = `${cu} · ${t.reached}`;
+    else b.textContent = `${cu} → ${g} · ${fmtH(c.perSkill[k])} ${t.hPerWeek}`;
+    top.append(a, b);
+    const tr = document.createElement("div"); tr.className = "track";
+    const from = pos(cu), to = g && rank(g) > rank(cu) ? pos(g) : from;
+    const f = document.createElement("div"); f.className = "fill" + (to === from ? " done" : "");
+    f.style.insetInlineStart = from + "%"; f.style.width = Math.max(to - from, 0) + "%";
+    const dot = document.createElement("div"); dot.className = "dot";
+    dot.style.insetInlineStart = from + "%";
+    tr.append(f, dot);
+    bar.append(top, tr); bars.appendChild(bar);
+  });
+  const sc = document.createElement("div"); sc.className = "scale"; sc.setAttribute("aria-hidden", "true");
+  LEVELS.forEach(L => { const s = document.createElement("span"); s.textContent = L;
+    s.style.insetInlineStart = pos(L) + "%"; sc.appendChild(s); });
+  bars.appendChild(sc);
+  bs.appendChild(bars); r.appendChild(bs);
+
+  // timeline
+  if (c.milestones.length){
+    const tb = document.createElement("div"); tb.className = "block";
+    const h = document.createElement("h3");
+    h.textContent = c.n > 1 ? `${t.timelineFor} ${t.skills[c.big].toLowerCase()} · ${t.biggestGap}` : `${t.timelineFor} ${t.skills[c.big].toLowerCase()}`;
+    const ol = document.createElement("ol"); ol.className = "timeline";
+    c.milestones.forEach(ms => {
+      const li = document.createElement("li"); if (ms.goal) li.className = "goal";
+      const lv = document.createElement("span"); lv.textContent = ms.level; lv.style.fontWeight = ms.goal ? "600" : "500";
+      const w = document.createElement("span"); w.className = "when"; w.textContent = `${t.about} ${mf.format(addWeeks(ms.weeks))}`;
+      li.append(lv, w);
+      ol.appendChild(li);
+    });
+    tb.append(h, ol); r.appendChild(tb);
+  }
+
+  // what if
+  const wi = document.createElement("div"); wi.className = "whatif";
+  const saved = Math.round(c.savedMonths);
+  wi.textContent = saved >= 1 ? t.whatIf(saved) : t.whatIfSmall;
+  r.appendChild(wi);
+
+  // warnings
+  const ws = [];
+  if (c.warnSpeak) ws.push(t.warnSpeak);
+  if (c.warnRatio) ws.push(t.warnRatio);
+  if (ws.length){
+    const wb = document.createElement("div"); wb.className = "warns";
+    ws.forEach(w => { const d = document.createElement("div"); d.className = "warn"; d.textContent = w; wb.appendChild(d); });
+    r.appendChild(wb);
+  }
+  r.classList.add("has-tear"); host.appendChild(shareBlock(c));
+}
+
+function weekBlock(){
+  const t = T();
+  const days = state.week || Array.from({ length: 7 }, () => ({ t: state.t / 7, s: state.s / 7 }));
+  const wk = document.createElement("div"); wk.className = "block";
+  const head = document.createElement("div"); head.className = "wk-head";
+  const pd = document.createElement("div"); pd.className = "perday";
+  pd.textContent = state.week ? t.sampleWeek(fmtDur(state.t + state.s)) : t.perDay(fmtDur((state.t + state.s) / 7));
+  const btns = document.createElement("div"); btns.className = "wk-btns";
+  if (state.week){
+    const ev = document.createElement("button"); ev.type = "button"; ev.className = "iconbtn"; ev.textContent = t.even; ev.title = t.evenTip;
+    ev.addEventListener("click", () => { state.week = null; renderResult(); });
+    btns.appendChild(ev);
+  }
+  const sh = document.createElement("button"); sh.type = "button"; sh.className = "iconbtn"; sh.title = t.shuffleTip; sh.setAttribute("aria-label", t.shuffleTip);
+  sh.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 0 0-14.3-4.9L4 8"/><path d="M4 3v5h5"/><path d="M4 13a8 8 0 0 0 14.3 4.9L20 16"/><path d="M20 21v-5h-5"/></svg>';
+  sh.append(t.shuffle);
+  sh.addEventListener("click", () => { state.week = shuffleWeek(state.t, state.s); renderResult(); });
+  btns.appendChild(sh);
+  head.append(pd, btns);
+  const max = Math.max(...days.map(d => d.t + d.s), 0.01);
+  const grid = document.createElement("div"); grid.className = "week";
+  days.forEach((d, i) => {
+    const tot = d.t + d.s;
+    const day = document.createElement("div"); day.className = "day" + (tot <= 0 ? " rest" : "");
+    day.tabIndex = 0;
+    day.dataset.tip = tot <= 0 ? t.dayOff : `${t.legendT}: ${fmtDur(d.t)}\n${t.legendS}: ${fmtDur(d.s)}`;
+    day.setAttribute("aria-label", `${t.days[i]}: ${day.dataset.tip.replace("\n", ", ")}`);
+    const dn = document.createElement("div"); dn.className = "dn"; dn.textContent = t.days[i];
+    const col = document.createElement("div"); col.className = "col";
+
+    const ss = document.createElement("div"); ss.className = "seg-s"; ss.style.height = (d.s / max * 100) + "%";
+    const st = document.createElement("div"); st.className = "seg-t"; st.style.height = (d.t / max * 100) + "%";
+    col.append(ss, st);
+    const lb = document.createElement("div"); lb.className = "lbl"; lb.textContent = fmtDur(tot);
+    day.append(dn, col, lb); grid.appendChild(day);
+  });
+  const lg = document.createElement("div"); lg.className = "legend";
+  const li1 = document.createElement("span"); const i1 = document.createElement("i"); i1.style.background = "var(--hi)"; li1.append(i1, `${t.legendT} · ${fmtDur(state.t)}`);
+  const li2 = document.createElement("span"); const i2 = document.createElement("i"); i2.style.background = "#E9E1D1"; li2.append(i2, `${t.legendS} · ${fmtDur(state.s)}`);
+  lg.append(li1, li2);
+  wk.append(head, grid, lg);
+  return wk;
+}
+
+function planUrl(){
+  // Inside Claude the page runs in a frame with its own temporary address, so link to the artifact itself.
+  let inFrame = false; try { inFrame = window.top !== window.self; } catch (e) { inFrame = true; }
+  return (inFrame ? ARTIFACT_URL : location.href.split("#")[0]) + "#" + encodeState();
+}
+/* What the card says about the goal: "B2", or "B2 in speaking and writing" when not every skill is raised. */
+function goalPhrase(c){
+  const t = T();
+  const top = c.included.reduce((a, k) => !a || rank(state.goal[k]) > rank(a) ? state.goal[k] : a, null);
+  const withTop = c.included.filter(k => state.goal[k] === top);
+  if (withTop.length === 4) return top;
+  const names = withTop.map(k => t.skills[k].toLowerCase());
+  const list = names.length > 1 ? names.slice(0, -1).join(", ") + " " + t.and + " " + names[names.length - 1] : names[0];
+  return `${top} ${t.inSkill} ${list}`;
+}
+/* Instagram Story image, 1080 × 1920, drawn in the page. On the live site the phone's share menu gets this picture
+   (that is the only way into Instagram from a website); where sharing files is not possible, the page shows the picture instead. */
+async function drawStory(st){
+  const t = T();
+  try { await Promise.all(["700 150px Domine", "700 56px 'Nunito Sans'", "400 44px 'Nunito Sans'"].map(f => document.fonts.load(f))); } catch (e) {}
+  const W = 1080, H = 1920, P = 96;
+  const cv = document.createElement("canvas"); cv.width = W; cv.height = H;
+  const x = cv.getContext("2d");
+  const NAVY = "#1F2A44", CREAM = "#FAF6EE", ORANGE = "#F2A65A", RUST = "#A8471A", MUTED = "#C4C0B6";
+  const disp = "Domine, Georgia, serif", body = "'Nunito Sans', Arial, sans-serif";
+  x.fillStyle = NAVY; x.fillRect(0, 0, W, H);
+  const rr = (X, Y, w, h, r, fill) => { x.beginPath(); x.roundRect ? x.roundRect(X, Y, w, h, r) : x.rect(X, Y, w, h); x.fillStyle = fill; x.fill(); };
+  const wrapText = (str, font, maxW) => {
+    x.font = font; const words = str.split(" "); const lines = []; let line = "";
+    words.forEach(wd => { const test = line ? line + " " + wd : wd; if (x.measureText(test).width > maxW && line){ lines.push(line); line = wd; } else line = test; });
+    if (line) lines.push(line); return lines;
+  };
+  x.textBaseline = "alphabetic"; x.textAlign = "left";
+  // 1. name
+  let y = 300;
+  wrapText(t.title, `700 72px ${disp}`, W - 2 * P).forEach(l => { x.fillStyle = ORANGE; x.font = `700 72px ${disp}`; x.fillText(l, P, y); y += 84; });
+  // 2. time a day
+  x.fillStyle = CREAM; x.font = `700 200px ${disp}`; x.fillText(st.daily, P, 640);
+  x.fillStyle = CREAM; x.font = `700 76px ${body}`; x.fillText(t.storyADay, P, 750);
+  // a week of rust boxes, like the talk's cover
+  const gap = 18, dw = (W - 2 * P - 6 * gap) / 7, dy = 810;
+  t.days.forEach((d, i) => {
+    const dx = P + i * (dw + gap);
+    rr(dx, dy, dw, 110, 22, "#A8471A");
+    x.fillStyle = CREAM; x.font = `700 44px ${body}`; x.textAlign = "center"; x.fillText(d, dx + dw / 2, dy + 70);
+  });
+  x.textAlign = "left";
+  // 3. goal
+  x.fillStyle = MUTED; x.font = `700 52px ${body}`; x.fillText(t.cardGoalPre, P, 1030);
+  y = 1130;
+  wrapText(st.goal, `700 88px ${disp}`, W - 2 * P).forEach(l => { x.fillStyle = CREAM; x.font = `700 88px ${disp}`; x.fillText(l, P, y); y += 104; });
+  x.fillStyle = ORANGE; x.font = `700 88px ${disp}`; x.fillText(`${t.cardBy} ${st.by}`, P, y);
+  // 4. question + button
+  x.fillStyle = "#33405F"; x.fillRect(P, 1530, W - 2 * P, 3);
+  x.fillStyle = CREAM; x.font = `700 62px ${body}`; x.fillText(t.storyAsk, P, 1640);
+  x.font = `800 54px ${body}`;
+  const bw = x.measureText(t.cta).width + 96;
+  rr(P, 1700, bw, 120, 60, ORANGE);
+  x.fillStyle = NAVY; x.fillText(t.cta, P + 48, 1779);
+  return cv;
+}
+async function shareStory(st, text, prev){
+  const t = T();
+  const cv = await drawStory(st);
+  try {
+    const blob = await new Promise(res => cv.toBlob(res, "image/png"));
+    const file = new File([blob], "my-english-plan.png", { type: "image/png" });
+    if (navigator.canShare && navigator.canShare({ files: [file] })){
+      await navigator.share({ files: [file], text });
+      return;
+    }
+  } catch (e) { /* refused here: show the picture instead */ }
+  prev.innerHTML = "";
+  const head = document.createElement("div"); head.className = "storyprev-h";
+  const ttl = document.createElement("b"); ttl.textContent = t.storyPreview;
+  const cl = document.createElement("button"); cl.type = "button"; cl.className = "iconbtn"; cl.textContent = t.close;
+  cl.addEventListener("click", () => { prev.hidden = true; });
+  head.append(ttl, cl);
+  cv.className = "storyimg"; cv.setAttribute("role", "img"); cv.setAttribute("aria-label", text);
+  prev.append(head, cv);
+  prev.hidden = false;
+}
+function shareBlock(c){
+  const t = T();
+  const wrap = document.createElement("div");
+  wrap.className = "tear " + (state.torn ? "torn" : "tearing") + " navy";
+  if (!state.torn) setTimeout(() => { state.torn = true; }, 2700);
+  const h = document.createElement("h3"); h.textContent = t.shareTitle; wrap.appendChild(h);
+  const url = planUrl();
+  let text = "";
+  if (c && c.status === "ok"){
+    const daily = fmtDur((state.t + state.s) / 7);
+    const goal = goalPhrase(c);
+    const by = new Intl.DateTimeFormat(state.lang, { month: "long", year: "numeric" }).format(addWeeks(c.weeksHi));
+    text = t.shareText(daily, goal, by);
+    // the card: name · time a day · goal · question and button (same order as the Instagram picture)
+    const card = document.createElement("div"); card.className = "scard";
+    const k = document.createElement("div"); k.className = "scard-brand"; k.textContent = t.title;
+    const big = document.createElement("div"); big.className = "scard-big"; big.textContent = t.cardDaily(daily);
+    const goalEl = document.createElement("div"); goalEl.className = "scard-goal";
+    goalEl.append(t.cardGoalPre + " ");
+    const gb = document.createElement("b"); gb.textContent = goal; goalEl.append(gb, " " + t.cardBy + " ");
+    const db = document.createElement("b"); db.textContent = by; goalEl.append(db);
+    const ft = document.createElement("div"); ft.className = "scard-ft";
+    const q = document.createElement("span"); q.textContent = t.storyAsk;
+    const cta = document.createElement("span"); cta.className = "scard-cta"; cta.textContent = t.cta;
+    ft.append(q, cta);
+    const days = document.createElement("div"); days.className = "scard-days"; days.setAttribute("aria-hidden", "true");
+    t.days.forEach(d => { const e = document.createElement("span"); e.textContent = d; days.appendChild(e); });
+    card.append(k, big, days, goalEl, ft);
+    wrap.appendChild(card);
+    // share links
+    const links = document.createElement("div"); links.className = "slinks";
+    const e = encodeURIComponent;
+    const story = { daily, goal, by };
+    const ig = document.createElement("button"); ig.type = "button"; ig.className = "slink"; ig.textContent = "Instagram";
+    const prev = document.createElement("div"); prev.className = "storyprev"; prev.hidden = true;
+    ig.addEventListener("click", () => shareStory(story, text, prev));
+    links.appendChild(ig);
+    [
+      ["Facebook", `https://www.facebook.com/sharer/sharer.php?u=${e(url)}`],
+      ["WhatsApp", `https://wa.me/?text=${e(text + " " + url)}`],
+      ["Telegram", `https://t.me/share/url?url=${e(url)}&text=${e(text)}`],
+      ["LinkedIn", `https://www.linkedin.com/sharing/share-offsite/?url=${e(url)}`],
+      ["X (Twitter)", `https://twitter.com/intent/tweet?text=${e(text)}&url=${e(url)}`]
+    ].forEach(([name, href]) => {
+      const a = document.createElement("a"); a.className = "slink"; a.href = href; a.target = "_blank"; a.rel = "noopener"; a.textContent = name;
+      links.appendChild(a);
+    });
+    wrap.append(links, prev);
+  }
+  // copy link
+  const box = document.createElement("div"); box.className = "share";
+  const b = document.createElement("button"); b.type = "button"; b.className = "btn2"; b.textContent = t.copyLink;
+  const msg = document.createElement("span"); msg.className = "copied";
+  b.addEventListener("click", () => {
+    const u = planUrl();
+    const fallback = () => {
+      if (box.querySelector("input")) return;
+      msg.textContent = t.copyFallback;
+      const i = document.createElement("input"); i.type = "text"; i.id = "shareUrl"; i.readOnly = true; i.value = u;
+      box.appendChild(i); i.select();
+    };
+    try { navigator.clipboard.writeText(u).then(() => { msg.textContent = t.copied; }, fallback); } catch (err) { fallback(); }
+  });
+  box.append(b, msg); wrap.appendChild(box);
+  return wrap;
+}
+
+function renderHow(){
+  const t = T(); const h = t.how; const body = $("howBody"); body.innerHTML = "";
+  const p = document.createElement("p"); p.style.margin = "0"; p.textContent = h.intro;
+  const ol = document.createElement("ol"); h.steps.forEach(s => { const li = document.createElement("li"); li.textContent = s; ol.appendChild(li); });
+  const fm = document.createElement("div"); fm.className = "formula";
+  fm.textContent = "Weeks = 3 × native-language factor × average gap in Cambridge hours ÷ (hours with a teacher + hours on your own)";
+  const tt = document.createElement("b"); tt.textContent = h.tableTitle;
+  const tw = document.createElement("div"); tw.className = "tblwrap";
+  const tb = document.createElement("table");
+  tb.innerHTML = `<thead><tr>${LEVELS.slice(1).map(L => `<th>${L}</th>`).join("")}</tr></thead>
+    <tbody><tr>${LEVELS.slice(1).map(L => `<td>${nf().format(GLH[L][0])}–${nf().format(GLH[L][1])}</td>`).join("")}</tr></tbody>`;
+  tw.appendChild(tb);
+  const gt = document.createElement("b"); gt.textContent = h.groupsTitle;
+  const gw = document.createElement("div"); gw.className = "tblwrap";
+  const gtab = document.createElement("table");
+  h.groups.forEach(([m, l]) => { const tr = document.createElement("tr"); const a = document.createElement("td"); a.textContent = m; a.style.whiteSpace = "nowrap"; const b = document.createElement("td"); b.textContent = l; tr.append(a, b); gtab.appendChild(tr); });
+  gw.appendChild(gtab);
+  const st = document.createElement("b"); st.textContent = h.sourcesTitle;
+  const ul = document.createElement("ul"); ul.className = "tests";
+  h.sources.forEach(([n, u]) => { const li = document.createElement("li"); const a = document.createElement("a"); a.href = u; a.target = "_blank"; a.rel = "noopener"; a.textContent = n; li.appendChild(a); ul.appendChild(li); });
+  body.append(p, ol, fm, tt, tw, gt, gw, st, ul);
+}
+
+const ARTIFACT_URL = "https://claude.ai/artifact/W6WeSbtYydPzKoUcmy7JNr";
+/* ===== Share state in the address (#token, only letters, digits, dot, dash) ===== */
+const PKEYS = Object.keys(PURPOSES);
+function encodeState(){
+  const lv = (x) => x ? x : "x";
+  return [
+    "p." + ([...state.purposes].join(".") || "none"),
+    "n." + (state.native || "none"),
+    "m." + (state.steps ? "s" : "w"),
+    "c." + SKILLS.map(k => state.cur[k].replace(".", "_")).join("."),
+    "g." + SKILLS.map(k => lv(state.goal[k]).replace(".", "_")).join("."),
+    "t." + Math.round(state.t * 2),
+    "s." + Math.round(state.s * 2),
+    "l." + (state.linkGoals ? 1 : 0),
+    "lc." + (state.linkCur ? 1 : 0)
+  ].join("-");
+}
+function decodeState(h){
+  try {
+    if (!h || !h.includes("p.")) return false;
+    const parts = Object.fromEntries(h.replace(/^#/, "").split("-").map(x => { const a = x.split("."); return [a[0], a.slice(1)]; }));
+    if (parts.p) state.purposes = new Set(parts.p.filter(k => PKEYS.includes(k)));
+    if (parts.n && parts.n[0] !== "none") state.native = parts.n[0];
+    if (parts.m) state.steps = parts.m[0] === "s";
+    const un = (x) => (x || "").replace("_", ".");
+    if (parts.c && parts.c.length === 4) SKILLS.forEach((k, i) => { if (isLevel(un(parts.c[i]))) state.cur[k] = toMode(un(parts.c[i]), state.steps); });
+    if (parts.g && parts.g.length === 4) SKILLS.forEach((k, i) => { state.goal[k] = isLevel(un(parts.g[i])) ? toMode(un(parts.g[i]), state.steps) : null; });
+    if (parts.t) state.t = Math.min(20, Math.max(0, (+parts.t[0] || 0) / 2));
+    if (parts.s) state.s = Math.min(40, Math.max(0, (+parts.s[0] || 0) / 2));
+    if (parts.l) state.linkGoals = parts.l[0] === "1";
+    if (parts.lc) state.linkCur = parts.lc[0] === "1";
+    return true;
+  } catch (e) { return false; }
+}
+
+/* ===== Wiring ===== */
+function update(){
+  renderForm();
+  renderResult();
+  if (state.shown){ try { history.replaceState(null, "", "#" + encodeState()); } catch (e) {} }
+}
+document.querySelectorAll(".levelSeg button").forEach(b => b.addEventListener("click", () => setSteps(b.dataset.steps === "1")));
+$("linkCur").addEventListener("change", (e) => { state.linkCur = e.target.checked; update(); });
+$("tHours").addEventListener("input", (e) => { state.t = +e.target.value; state.week = null; update(); });
+$("sHours").addEventListener("input", (e) => { state.s = +e.target.value; state.week = null; update(); });
+$("linkGoals").addEventListener("change", (e) => { state.linkGoals = e.target.checked; update(); });
+$("nativeSearch").addEventListener("change", (e) => {
+  const v = e.target.value.trim().toLowerCase(); if (!v) return;
+  const hit = ALL_NATIVE.find(n => n[0].toLowerCase() === v);
+  state.native = hit ? hit[1] : "other"; update();
+});
+$("pageLang").addEventListener("change", (e) => { if (STR[e.target.value]){ state.lang = e.target.value; renderStatic(); update(); } });
+$("goBtn").addEventListener("click", () => {
+  state.shown = true; update();
+  // show the top of the result: on phones it sits under the form; on wide screens it starts at the top of the grid
+  const narrow = window.matchMedia("(max-width:920px)").matches;
+  const target = narrow ? $("result") : document.querySelector(".grid");
+  const y = target.getBoundingClientRect().top + window.scrollY - 16;
+  const smooth = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  window.scrollTo({ top: Math.max(0, y), behavior: smooth ? "smooth" : "auto" });
+});
+
+/* Theme: light by default; the visitor's own pick is remembered in this browser only. */
+function setTheme(th, save){
+  document.documentElement.classList.toggle("dark", th === "dark");
+  document.querySelectorAll("#themeSeg button").forEach(b => b.setAttribute("aria-pressed", b.dataset.themePick === th ? "true" : "false"));
+  if (save){ try { localStorage.setItem("hlte-theme", th); } catch (e) {} }
+}
+document.querySelectorAll("#themeSeg button").forEach(b => b.addEventListener("click", () => setTheme(b.dataset.themePick, true)));
+let savedTheme = "light";
+try { if (localStorage.getItem("hlte-theme") === "dark") savedTheme = "dark"; } catch (e) {}
+
+if (decodeState(location.hash)) state.shown = true;
+renderStatic();
+setTheme(savedTheme, false);
+update();
+</script>
+
+</body>
+</html>
