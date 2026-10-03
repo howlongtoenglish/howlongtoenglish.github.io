@@ -1,14 +1,33 @@
 <!doctype html>
 <html lang="en">
 <head>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-BP8L0FM6HR"></script>
+<!-- Google tag (gtag.js). In Europe (EU/EEA, UK, Switzerland) it loads only after the visitor taps "Allow". -->
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-BP8L0FM6HR', { page_location: location.href.split('#')[0] });   // the plan in #... stays out of Analytics
+  window.GA_ID = 'G-BP8L0FM6HR';
+  gtag('consent', 'default', { ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied' });   // no ads on this site
+  /* Where the visitor is: we guess from the browser's time zone (no IP lookup, nothing sent anywhere).
+     Europe/* counts as "needs consent", except Ukraine, Russia, Belarus and Turkey. */
+  window.needsConsent = (function(){
+    try {
+      var tz = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
+      if (/^(Atlantic\/(Canary|Madeira|Azores|Reykjavik|Faroe)|Arctic\/Longyearbyen|Africa\/Ceuta)$/.test(tz)) return true;
+      if (!/^Europe\//.test(tz)) return false;
+      return !/^Europe\/(Kyiv|Kiev|Uzhgorod|Zaporozhye|Simferopol|Moscow|Minsk|Kaliningrad|Samara|Volgograd|Saratov|Ulyanovsk|Astrakhan|Kirov|Istanbul)$/.test(tz);
+    } catch (e) { return false; }
+  })();
+  window.loadGA = function(){
+    if (window.gaLoaded) return; window.gaLoaded = true;
+    var s = document.createElement('script'); s.async = true; s.src = 'https://www.googletagmanager.com/gtag/js?id=' + GA_ID;
+    document.head.appendChild(s);
+    gtag('js', new Date());
+    gtag('config', GA_ID, { page_location: location.href.split('#')[0] });   // the plan in #... stays out of Analytics
+  };
+  (function(){
+    var c = null; try { c = localStorage.getItem('hlt-consent'); } catch (e) {}
+    if (!window.needsConsent || c === 'yes') window.loadGA();
+  })();
 </script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -395,6 +414,16 @@ button.igopen{font:inherit;font-weight:800;font-size:15px;border:0;cursor:pointe
 .tblwrap{overflow-x:auto}
 .formula{font-size:15px;background:var(--field);border-radius:var(--r-sm);padding-block:12px;padding-inline:14px;color:var(--ink)}
 
+.consent{position:fixed;inset-inline:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:50;max-width:620px;margin-inline:auto;background:var(--card);color:var(--card-ink);border-radius:var(--r-sm);padding-block:14px;padding-inline:16px;box-shadow:0 10px 30px rgba(20,26,43,.28);display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px}
+.consent[hidden]{display:none}
+.consent p{margin:0;flex:1 1 280px;font-size:14.5px;line-height:1.45}
+.consent .btns{display:flex;gap:8px;flex-wrap:wrap}
+.consent button{font:inherit;font-size:14.5px;font-weight:700;border-radius:var(--r-sm);padding-block:8px;padding-inline:14px;cursor:pointer}
+.consent .yes{background:var(--hi);color:#1F2A44;border:0}
+.consent .no{background:transparent;color:var(--card-ink);border:1px solid var(--card-muted)}
+.consent button:focus-visible{outline:2px solid var(--hi);outline-offset:2px}
+.linkish{font:inherit;color:inherit;background:none;border:0;padding:0;text-decoration:underline;cursor:pointer}
+.linkish[hidden]{display:none}
 footer{margin-block-start:22px;color:var(--muted);font-size:14px;display:flex;gap:6px 18px;flex-wrap:wrap}
 
 @media (max-width:540px){
@@ -520,8 +549,17 @@ footer{margin-block-start:22px;color:var(--muted);font-size:14px;display:flex;ga
   <footer>
     <span data-t="madeBy"></span>
     <span data-t="privacy"></span>
+    <button type="button" class="linkish" id="consentOpen" data-t="consentLink" hidden></button>
     <span id="credit"></span>
   </footer>
+</div>
+
+<div class="consent" id="consent" role="dialog" aria-live="polite" aria-labelledby="consentText" hidden>
+  <p id="consentText" data-t="consentText"></p>
+  <div class="btns">
+    <button type="button" class="yes" id="consentYes" data-t="consentYes"></button>
+    <button type="button" class="no" id="consentNo" data-t="consentNo"></button>
+  </div>
 </div>
 
 <script>
@@ -677,6 +715,10 @@ const STR = {
     howTitle: "How we calculate",
     madeBy: "Made by an English learner for learners.",
     privacy: "We only count visits (Google Analytics cookies).",
+    consentText: "Can we count your visit? We use Google Analytics cookies only to see how many people use the calculator. No ads.",
+    consentYes: "Allow",
+    consentNo: "No, thanks",
+    consentLink: "Cookie settings",
     how: {
       formula: "Weeks = 3 × native-language factor × average gap in Cambridge hours ÷ (hours with a teacher + hours on your own)",
       intro: "This is an estimate, not a promise. Real time depends on your age, your experience with languages, how intensive your study is, and how much English you use outside lessons.",
@@ -844,6 +886,10 @@ const STR = {
     howTitle: "Як ми рахуємо",
     madeBy: "Зроблено ученицею англійської для учнів.",
     privacy: "Ми лише рахуємо відвідування (cookie Google Analytics).",
+    consentText: "Можна врахувати ваше відвідування? Ми використовуємо cookie Google Analytics лише для того, щоб бачити, скільки людей користуються калькулятором. Без реклами.",
+    consentYes: "Дозволити",
+    consentNo: "Ні, дякую",
+    consentLink: "Налаштування cookie",
     byPre: "Авторка: ", byName: "Ірина Янішевська", byPost: " © 2026",
     how: {
       intro: "Це оцінка, а не обіцянка. Реальний час залежить від віку, досвіду з мовами, інтенсивності навчання і того, скільки англійської у вашому житті поза уроками.",
@@ -1006,6 +1052,10 @@ const STR = {
     howTitle: "Cómo calculamos",
     madeBy: "Hecho por una estudiante de inglés para estudiantes.",
     privacy: "Solo contamos las visitas (cookies de Google Analytics).",
+    consentText: "¿Podemos contar tu visita? Usamos cookies de Google Analytics solo para saber cuántas personas usan la calculadora. Sin anuncios.",
+    consentYes: "Permitir",
+    consentNo: "No, gracias",
+    consentLink: "Configuración de cookies",
     byPre: "por ", byName: "Iryna Yanishevska", byPost: " © 2026",
     how: {
       intro: "Es una estimación, no una promesa. El tiempo real depende de tu edad, tu experiencia con idiomas, la intensidad de tu estudio y cuánto inglés usas fuera de clase.",
@@ -1168,6 +1218,10 @@ const STR = {
     howTitle: "我们如何计算",
     madeBy: "一位英语学习者为学习者制作。",
     privacy: "我们只统计访问量（Google Analytics cookie）。",
+    consentText: "可以统计您的这次访问吗？我们使用 Google Analytics cookie，只是为了了解有多少人在使用这个计算器。没有广告。",
+    consentYes: "允许",
+    consentNo: "不，谢谢",
+    consentLink: "Cookie 设置",
     byPre: "作者：", byName: "Iryna Yanishevska", byPost: " © 2026",
     how: {
       intro: "这只是估算，不是承诺。实际时间取决于你的年龄、学习语言的经验、学习强度，以及课外使用英语的多少。",
@@ -1330,6 +1384,10 @@ const STR = {
     howTitle: "계산 방법",
     madeBy: "영어 학습자가 학습자를 위해 만들었습니다.",
     privacy: "방문 수만 집계합니다(Google Analytics 쿠키).",
+    consentText: "방문을 집계해도 될까요? 계산기를 몇 명이 사용하는지 알기 위해서만 Google Analytics 쿠키를 사용합니다. 광고는 없습니다.",
+    consentYes: "허용",
+    consentNo: "괜찮습니다",
+    consentLink: "쿠키 설정",
     byPre: "제작: ", byName: "Iryna Yanishevska", byPost: " © 2026",
     how: {
       intro: "이것은 예상일 뿐 약속이 아닙니다. 실제 시간은 나이, 언어 학습 경험, 공부 강도, 수업 밖에서 영어를 얼마나 쓰는지에 따라 달라집니다.",
@@ -1492,6 +1550,10 @@ const STR = {
     howTitle: "چگونه حساب می‌کنیم",
     madeBy: "ساخته‌شده به دست یک زبان‌آموز انگلیسی برای زبان‌آموزان.",
     privacy: "فقط تعداد بازدیدها را می‌شماریم (کوکی‌های Google Analytics).",
+    consentText: "اجازه می‌دهید بازدید شما را بشماریم؟ ما فقط برای اینکه بدانیم چند نفر از این ماشین‌حساب استفاده می‌کنند از کوکی‌های Google Analytics استفاده می‌کنیم. بدون تبلیغ.",
+    consentYes: "اجازه می‌دهم",
+    consentNo: "نه، ممنون",
+    consentLink: "تنظیمات کوکی",
     byPre: "ساختهٔ ", byName: "Iryna Yanishevska", byPost: " © 2026",
     how: {
       intro: "این یک تخمین است، نه یک قول. زمان واقعی به سن، تجربهٔ شما با زبان‌ها، فشردگی یادگیری و میزان استفاده از انگلیسی بیرون از کلاس بستگی دارد.",
@@ -2531,6 +2593,27 @@ $("pageLang").addEventListener("change", (e) => {
   try { localStorage.setItem("hlte-lang", state.lang); } catch (err) {}
   renderStatic(); update();
 });
+/* Cookie banner: only for visitors in Europe (see the Google tag at the top of the page). */
+(function(){
+  if (!window.needsConsent) return;
+  const box = $("consent"), open = $("consentOpen");
+  let choice = null; try { choice = localStorage.getItem("hlt-consent"); } catch (e) {}
+  open.hidden = false;
+  const save = (v) => { try { localStorage.setItem("hlt-consent", v); } catch (e) {} box.hidden = true; };
+  if (choice !== "yes" && choice !== "no") box.hidden = false;
+  $("consentYes").addEventListener("click", () => {
+    save("yes"); window.loadGA(); gtag("consent", "update", { analytics_storage: "granted" });
+  });
+  $("consentNo").addEventListener("click", () => {
+    save("no"); gtag("consent", "update", { analytics_storage: "denied" });
+    // remove Analytics cookies if they were set earlier
+    document.cookie.split(";").map(c => c.split("=")[0].trim()).filter(n => /^_ga/.test(n)).forEach(n => {
+      const host = location.hostname;
+      ["", "; domain=" + host, "; domain=." + host].forEach(d => { document.cookie = n + "=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/" + d; });
+    });
+  });
+  open.addEventListener("click", () => { box.hidden = false; $("consentYes").focus(); });
+})();
 /* first visit: the browser's language if we have it, otherwise English */
 try {
   const saved = localStorage.getItem("hlte-lang");
